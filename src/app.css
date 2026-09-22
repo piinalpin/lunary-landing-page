@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-dark: #070A12;
+  --color-brand-surface: #0E1424;
+  --color-brand-surfaceHover: #141C33;
+  --color-brand-card: #11182B;
+  --color-brand-border: rgba(255, 255, 255, 0.08);
+  --color-brand-borderLight: rgba(255, 255, 255, 0.14);
+  --color-brand-primary: #4D5BFF;
+  --color-brand-primaryHover: #3D49E0;
+  --color-brand-cyan: #06D6A0;
+  --color-brand-accent: #818cf8;
+  --color-brand-amber: #F59E0B;
+  --color-brand-rose: #F43F5E;
+
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --shadow-glow-primary: 0 0 40px -10px rgba(77, 91, 255, 0.45);
+  --shadow-glow-cyan: 0 0 35px -10px rgba(6, 214, 160, 0.35);
+  --shadow-glass-inset: inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Custom ambient orbs and glass utilities */
+.glow-orb-indigo {
+  background: radial-gradient(circle, rgba(77, 91, 255, 0.18) 0%, rgba(77, 91, 255, 0) 70%);
+}
+
+.glow-orb-cyan {
+  background: radial-gradient(circle, rgba(6, 214, 160, 0.14) 0%, rgba(6, 214, 160, 0) 70%);
+}
+
+.glow-orb-violet {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.14) 0%, rgba(168, 85, 247, 0) 70%);
+}
+
+.glass-panel {
+  background: rgba(14, 20, 36, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: linear-gradient(180deg, rgba(17, 24, 43, 0.85) 0%, rgba(12, 17, 31, 0.95) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.text-gradient-white {
+  background: linear-gradient(180deg, #FFFFFF 20%, #A5B4FC 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #06D6A0 0%, #38BDF8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Cosmic Skeleton Shimmer for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite ease-in-out;
+}
+
