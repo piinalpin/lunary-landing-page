@@ -1,54 +1,174 @@
 <script lang="ts">
-  import { COMPARISON_ROWS } from '@/data/fallbackLandingData';
+  const comparisons = [
+    {
+      icon: 'grid',
+      title: 'Spreadsheet',
+      pains: ['Sulit dibuka dari HP', 'Rumus mudah keliru', 'Harus zoom terus'],
+      benefits: ['Catat cepat di mana saja', 'Hitung otomatis dan konsisten', 'Ringkasan langsung terbaca'],
+    },
+    {
+      icon: 'note',
+      title: 'Catatan HP',
+      pains: ['Total masih manual', 'Catatan cepat berantakan', 'Sulit lihat tren bulanan'],
+      benefits: ['Kategori dan cashflow rapi', 'Budget terlihat sebelum lewat', 'Analisis bulanan mudah dipantau'],
+    },
+    {
+      icon: 'app',
+      title: 'Aplikasi lainnya',
+      pains: ['Menu penting tersebar', 'Cashflow dan budget terpisah', 'Analisis sulit ditemukan'],
+      benefits: ['Catat, pantau, rencanakan', 'Budget dan cashflow menyatu', 'Analisis mudah ditindaklanjuti'],
+    },
+  ];
 </script>
 
-<section class="py-20 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5 relative z-10">
-  <div class="text-center max-w-3xl mx-auto mb-16">
-    <span class="text-xs uppercase font-bold tracking-widest text-brand-primary">KOMPARASI KEUNGGULAN</span>
-    <h2 class="text-3xl sm:text-5xl font-extrabold text-white mt-3 mb-4 tracking-tight">
-      Mengapa Lunary Lebih Unggul?
-    </h2>
-    <p class="text-base sm:text-lg text-slate-400">
-      Tinggalkan cara lama yang membuang waktu dan rentan kesalahan input.
-    </p>
-  </div>
+<section class="comparison-section relative z-10 border-t border-white/5 px-4 py-20 sm:px-6 lg:py-28">
+  <div class="mx-auto max-w-7xl">
+    <div class="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
+      <h2 class="text-3xl font-extrabold leading-tight text-white sm:text-4xl">
+        Mengatur uang tidak harus ribet.
+      </h2>
+      <p class="mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">
+        Lunary merapikan hal-hal yang biasanya bikin pencatatan keuangan berhenti di tengah jalan.
+      </p>
+    </div>
 
-  <!-- Responsive Comparison Table -->
-  <div class="overflow-x-auto">
-    <table class="w-full text-left border-collapse min-w-[680px]">
-      <thead>
-        <tr class="border-b border-white/10 text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider">
-          <th class="py-4 px-6">Fitur &amp; Alur Kerja</th>
-          <th class="py-4 px-6 text-slate-500">Spreadsheet Manual</th>
-          <th class="py-4 px-6 text-slate-500">Aplikasi Konvensional</th>
-          <th class="py-4 px-6 text-brand-cyan bg-brand-primary/10 rounded-t-2xl border-t border-x border-brand-primary/30">
-            Lunary (Pilihan Cerdas)
-          </th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-white/5 text-sm sm:text-base">
-        {#each COMPARISON_ROWS as row, idx}
-          {@const isLast = idx === COMPARISON_ROWS.length - 1}
-          <tr>
-            <td class="py-5 px-6 font-semibold text-white">{row.feature}</td>
-            <td class="py-5 px-6 text-slate-400">{row.spreadsheet}</td>
-            <td class="py-5 px-6 text-slate-400">{row.conventional}</td>
-            <td
-              class="py-5 px-6 text-white font-medium bg-brand-primary/10 border-x border-brand-primary/30 {isLast
-                ? 'rounded-b-2xl border-b'
-                : ''}"
-            >
-              <span class="inline-flex items-center gap-1.5 text-brand-cyan font-bold">
-                {#if row.lunaryHighlight}
-                  <span>{row.lunaryHighlight}</span>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+      {#each comparisons as comparison}
+        <article class="comparison-card">
+          <div class="comparison-body">
+            <div class="old-method">
+              <span class="method-icon" aria-hidden="true">
+                {#if comparison.icon === 'grid'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg>
+                {:else if comparison.icon === 'note'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+                {:else if comparison.icon === 'app'}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h4"/></svg>
                 {/if}
-                <span>{row.lunary}</span>
               </span>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
+              <h3>{comparison.title}</h3>
+              <ul class="pain-list">
+                {#each comparison.pains as pain}
+                  <li><span class="list-marker" aria-hidden="true">x</span><span class="list-copy">{pain}</span></li>
+                {/each}
+              </ul>
+            </div>
+
+            <div class="lunary-method">
+              <div class="lunary-heading">
+                <img src="/assets/lunary-icon.png" alt="" aria-hidden="true" />
+                <div>
+                  <span>LUNARY</span>
+                </div>
+              </div>
+              <ul class="benefit-list">
+                {#each comparison.benefits as benefit}
+                  <li><span class="list-marker" aria-hidden="true">✓</span><span class="list-copy">{benefit}</span></li>
+                {/each}
+              </ul>
+            </div>
+          </div>
+        </article>
+      {/each}
+    </div>
   </div>
 </section>
 
+<style>
+  .comparison-section { background: #070b16; }
+
+  .comparison-card {
+    display: flex;
+    height: 100%;
+    min-height: 25rem;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgb(148 163 184 / 0.14);
+    border-radius: 0.5rem;
+    background: #0d1425;
+  }
+
+  .comparison-body {
+    display: grid;
+    flex: 1;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .old-method {
+    min-height: 15rem;
+    padding: 1.35rem 1.35rem 1.25rem;
+    text-align: center;
+  }
+
+  .method-icon {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    background: rgb(99 102 241 / 0.12);
+    color: #a5b4fc;
+    margin: 0 auto;
+  }
+
+  .method-icon svg { width: 1.25rem; height: 1.25rem; }
+
+  .old-method h3 {
+    margin: 0.9rem auto 0;
+    min-height: 1.75rem;
+    color: #e2e8f0;
+    font-size: 1.15rem;
+    font-weight: 750;
+  }
+
+  .pain-list, .benefit-list {
+    display: grid;
+    gap: 0.6rem;
+    width: min(100%, 18rem);
+    margin: 1.25rem auto 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pain-list li, .benefit-list li {
+    display: flex;
+    gap: 0.625rem;
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .pain-list li { color: #94a3b8; }
+  .list-marker { flex: 0 0 auto; font-size: 0.9rem; font-weight: 800; line-height: 1.3; }
+  .pain-list .list-marker { color: #fb7185; }
+  .list-copy { max-width: 14rem; }
+
+  .lunary-method {
+    min-height: 15rem;
+    padding: 1.35rem 1.35rem 1.5rem;
+    border-top: 1px solid rgb(148 163 184 / 0.1);
+    background: #0c1a2a;
+  }
+
+  .lunary-heading {
+    display: flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-align: center;
+  }
+  .lunary-heading img { width: 2.25rem; height: 2.25rem; border-radius: 0.5rem; object-fit: cover; }
+  .lunary-heading span { display: block; color: #22d3ee; font-size: 0.65rem; font-weight: 800; text-align: center; }
+  .benefit-list li { color: #d1fae5; font-weight: 600; }
+  .benefit-list .list-marker { color: #34d399; }
+
+  @media (max-width: 639px) {
+    .comparison-body { grid-template-rows: auto auto; }
+    .old-method { padding: 1.25rem; }
+    .lunary-method { border-top: 1px solid rgb(148 163 184 / 0.1); }
+  }
+</style>

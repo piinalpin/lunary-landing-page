@@ -4,9 +4,8 @@
   import Navbar from '@/components/layout/Navbar.svelte';
   import Footer from '@/components/layout/Footer.svelte';
   import HeroSection from '@/components/sections/HeroSection.svelte';
-  import DashboardPreview from '@/components/sections/DashboardPreview.svelte';
-  import BentoFeatures from '@/components/sections/BentoFeatures.svelte';
-  import CalendarDeepDive from '@/components/sections/CalendarDeepDive.svelte';
+  import RealFeatureShowcase from '@/components/sections/RealFeatureShowcase.svelte';
+  import LunaryFeatureGrid from '@/components/sections/LunaryFeatureGrid.svelte';
   import ComparisonTable from '@/components/sections/ComparisonTable.svelte';
   import PricingSection from '@/components/sections/PricingSection.svelte';
   import FaqSection from '@/components/sections/FaqSection.svelte';
@@ -23,6 +22,7 @@
   } from '@/data/fallbackLandingData';
   import type { TestimonialItem, FaqItem } from '@/types/api';
   import type { NormalizedPricingTier, ToastMessage } from '@/types/landing';
+  import type { Locale } from '@/types/landing';
   import { formatRupiah } from '@/utils/formatters';
 
   // API State
@@ -34,6 +34,13 @@
   // Modal & Toast State
   let isDemoModalOpen = $state(false);
   let activeToast = $state<ToastMessage | null>(null);
+  let locale = $state<Locale>('id');
+
+  function setLocale(nextLocale: Locale) {
+    locale = nextLocale;
+    document.documentElement.lang = nextLocale;
+    localStorage.setItem('lunary-locale', nextLocale);
+  }
 
   function showToast(toast: ToastMessage) {
     activeToast = toast;
@@ -56,12 +63,22 @@
   }
 
   onMount(async () => {
+    const storedLocale = localStorage.getItem('lunary-locale');
+    if (storedLocale === 'id' || storedLocale === 'en') setLocale(storedLocale);
+
     try {
       const data = await landingService.getLandingPageData();
 
       // Update testimonials if available from backend
       if (data.testimonials && data.testimonials.length > 0) {
-        testimonials = data.testimonials;
+        const seenNames = new Set<string>();
+        testimonials = [...data.testimonials, ...FALLBACK_TESTIMONIALS].filter((item) => {
+          const normalizedName = item.name.trim().toLowerCase();
+          if (seenNames.has(normalizedName)) return false;
+
+          seenNames.add(normalizedName);
+          return true;
+        });
       }
 
       // Update faqs if available from backend
@@ -73,31 +90,39 @@
       if (data.module_plans && data.module_plans.length > 0) {
         const mappedTiers: NormalizedPricingTier[] = data.module_plans.map((plan) => {
           const variants = (data.plan_variants || []).filter(
-            (v) => String(v.module_plan_id) === String(plan.id)
+            (v) => String(v.module_plan_id ?? v.plan?.id) === String(plan.id)
           );
 
-          const monthlyVar = variants.find((v) => v.billing_cycle === 'monthly');
-          const yearlyVar = variants.find((v) => v.billing_cycle === 'yearly');
-          const lifetimeVar = variants.find((v) => v.billing_cycle === 'lifetime');
+          const monthlyVar = variants.find((v) => v.billing_cycle === 'monthly' || v.expires_in === 30 || v.name?.toLowerCase().includes('monthly'));
+          const yearlyVar = variants.find((v) => v.billing_cycle === 'yearly' || v.expires_in === 365 || v.name?.toLowerCase().includes('yearly'));
 
-          const monthlyRaw = monthlyVar ? monthlyVar.price : 0;
-          const yearlyRaw = yearlyVar ? yearlyVar.price : monthlyRaw * 10;
-          const lifetimeRaw = lifetimeVar ? lifetimeVar.price : 499000;
+          const finalPrice = (variant: typeof monthlyVar) => {
+            if (!variant) return 0;
+            const discount = variant.discount_percentage ?? variant.discount ?? 0;
+            return Math.floor(variant.price * (100 - discount) / 100);
+          };
+          const monthlyRaw = finalPrice(monthlyVar);
+          const yearlyRaw = finalPrice(yearlyVar) || monthlyRaw * 10;
+          const planCode = plan.code || plan.name.toLowerCase();
 
           return {
-            id: plan.code || String(plan.id),
+            id: planCode,
             name: plan.name,
             subtitle: plan.description || 'Optimalkan arus kas dengan modul Lunary.',
             monthlyPrice: formatRupiah(monthlyRaw),
             monthlyRawPrice: monthlyRaw,
+            monthlyOriginalPrice: formatRupiah(monthlyVar?.price ?? monthlyRaw),
+            monthlyOriginalRawPrice: monthlyVar?.price ?? monthlyRaw,
+            monthlyDiscount: monthlyVar?.discount_percentage ?? monthlyVar?.discount ?? 0,
             yearlyPrice: formatRupiah(yearlyRaw),
             yearlyRawPrice: yearlyRaw,
-            lifetimePrice: formatRupiah(lifetimeRaw),
-            lifetimeRawPrice: lifetimeRaw,
+            yearlyOriginalPrice: formatRupiah(yearlyVar?.price ?? yearlyRaw),
+            yearlyOriginalRawPrice: yearlyVar?.price ?? yearlyRaw,
+            yearlyDiscount: yearlyVar?.discount_percentage ?? yearlyVar?.discount ?? 0,
             featured: Boolean(plan.is_featured),
             badge: plan.is_featured ? 'PALING POPULER' : undefined,
             features: (plan.modules || []).map((m) => m.name),
-            ctaText: plan.is_featured ? 'Pilih Paket Pro' : 'Mulai Sekarang',
+            ctaText: plan.is_featured || planCode === 'pro' ? 'Pilih Pro' : 'Pilih Starter',
             ctaHref: '#harga',
           };
         });
@@ -118,32 +143,32 @@
   });
 </script>
 
-<div class="min-h-screen relative overflow-x-hidden font-sans antialiased selection:bg-brand-primary selection:text-white bg-brand-dark text-slate-200">
+<div class="landing-page min-h-screen relative overflow-x-hidden font-sans antialiased selection:bg-brand-primary selection:text-white bg-brand-dark text-slate-200 transition-colors duration-300">
   <!-- Ambient Background Glow Orbs -->
   <AmbientGlows />
 
   <!-- Sticky Glassmorphic Navbar -->
-  <Navbar />
+  <Navbar {locale} onLocaleChange={setLocale} />
 
   <!-- Main Landing Content -->
   <main class="relative z-10">
-    <HeroSection onOpenDemo={() => (isDemoModalOpen = true)} />
-    <DashboardPreview onQuickAction={() => (isDemoModalOpen = true)} />
-    <BentoFeatures />
-    <CalendarDeepDive />
+    <HeroSection {locale} onOpenDemo={() => (isDemoModalOpen = true)} />
+    <RealFeatureShowcase />
+    <LunaryFeatureGrid />
     <ComparisonTable />
     <PricingSection
+      {locale}
       tiers={pricingTiers}
       loading={isLoading}
       onSelectPlan={handleSelectPlan}
     />
     <FaqSection faqs={faqs} loading={isLoading} />
-    <TestimonialsSection testimonials={testimonials} loading={isLoading} />
-    <FinalCtaSection onNotify={showToast} />
+    <TestimonialsSection {locale} testimonials={testimonials} loading={isLoading} />
+    <FinalCtaSection />
   </main>
 
   <!-- Main Footer -->
-  <Footer />
+  <Footer {locale} />
 
   <!-- Interactive Demo Preview Modal -->
   <Modal
@@ -186,7 +211,7 @@
           href="#harga"
           onclick={() => (isDemoModalOpen = false)}
         >
-          Coba Gratis Sekarang
+          Lihat Paket
         </a>
       </div>
     </div>
@@ -195,4 +220,3 @@
   <!-- Global Toast Notification -->
   <Toast toast={activeToast} ondismiss={() => (activeToast = null)} />
 </div>
-

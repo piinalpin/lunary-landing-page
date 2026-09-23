@@ -29,7 +29,7 @@ export interface ModuleItem {
 export interface ModulePlanItem {
   id: string | number;
   name: string;
-  code: string;
+  code?: string;
   description?: string;
   is_featured?: boolean;
   modules?: ModuleItem[];
@@ -37,7 +37,13 @@ export interface ModulePlanItem {
 
 export interface PlanVariantItem {
   id: string | number;
-  module_plan_id: string | number;
+  module_plan_id?: string | number;
+  plan?: { id: string | number; name: string };
+  name?: string;
+  expires_in?: number;
+  discount?: number;
+  active?: boolean;
+  is_best_value?: boolean;
   billing_cycle: 'monthly' | 'yearly' | 'lifetime' | string;
   price: number;
   formatted_price?: string;
@@ -60,4 +66,3 @@ export interface LeadSubmissionResponse {
   success: boolean;
   message: string;
 }
-

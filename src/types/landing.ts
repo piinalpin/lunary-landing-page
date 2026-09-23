@@ -1,3 +1,5 @@
+export type Locale = 'id' | 'en';
+
 export interface NavItem {
   label: string;
   href: string;
@@ -26,10 +28,14 @@ export interface NormalizedPricingTier {
   subtitle: string;
   monthlyPrice: string;
   monthlyRawPrice: number;
+  monthlyOriginalPrice: string;
+  monthlyOriginalRawPrice: number;
+  monthlyDiscount: number;
   yearlyPrice: string;
   yearlyRawPrice: number;
-  lifetimePrice: string;
-  lifetimeRawPrice: number;
+  yearlyOriginalPrice: string;
+  yearlyOriginalRawPrice: number;
+  yearlyDiscount: number;
   featured: boolean;
   badge?: string;
   features: string[];
@@ -43,4 +49,3 @@ export interface ToastMessage {
   type: 'success' | 'error' | 'info';
   message: string;
 }
-
