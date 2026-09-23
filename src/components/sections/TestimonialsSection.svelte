@@ -4,6 +4,7 @@
   import type { Locale } from '@/types/landing';
   import { FALLBACK_TESTIMONIALS } from '@/data/fallbackLandingData';
   import TestimonialSkeleton from '@/components/skeletons/TestimonialSkeleton.svelte';
+  import { maskLastName } from '@/utils/formatters';
 
   interface Props {
     locale: Locale;
@@ -185,7 +186,7 @@
                   alt=""
                 />
                 <div class="min-w-0 text-left">
-                  <h3 class="truncate text-sm font-bold text-white">{item.name}</h3>
+                  <h3 class="truncate text-sm font-bold text-white">{maskLastName(item.name)}</h3>
                 </div>
               </header>
 
