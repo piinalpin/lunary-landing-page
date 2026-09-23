@@ -1,0 +1,32 @@
+name: lunary-landing-page
+
+networks:
+  proxy-net:
+    external: true
+
+services:
+  lunary-landing-page:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api}
+        VITE_API_TIMEOUT: ${VITE_API_TIMEOUT:-10000}
+        VITE_APP_NAME: ${VITE_APP_NAME:-Lunary}
+        VITE_APP_LOGIN_URL: ${VITE_APP_LOGIN_URL:-http://localhost:8000/login}
+        VITE_LANDING_PAGE_SECRET: ${VITE_LANDING_PAGE_SECRET:-lunary_landing_secret_2026_super_secure_key}
+    container_name: lunary-landing-page
+    image: ryujinlabs/lunary-landing-page:${BUILD_VERSION:-latest}
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.docker.network: proxy-net
+
+      # Router & Service
+      # Force HTTP because already TLS Termination via traefik
+      # Route: cloudflare-tunnel (https) > traefik (web-public http)
+      traefik.http.routers.lunary-app-landing-page.rule: Host(`${VITE_APP_HOST}`)
+      traefik.http.routers.lunary-app-landing-page.entrypoints: web-public
+      traefik.http.routers.lunary-app-landing-page.service: lunary-app-landing-page-svc
+      traefik.http.services.lunary-app-landing-page-svc.loadbalancer.server.port: 80
+

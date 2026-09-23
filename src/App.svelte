@@ -11,7 +11,6 @@
   import FaqSection from '@/components/sections/FaqSection.svelte';
   import TestimonialsSection from '@/components/sections/TestimonialsSection.svelte';
   import FinalCtaSection from '@/components/sections/FinalCtaSection.svelte';
-  import Modal from '@/components/common/Modal.svelte';
   import Toast from '@/components/common/Toast.svelte';
 
   import { landingService } from '@/api/services/landingService';
@@ -33,7 +32,6 @@
   let planVariants = $state<PlanVariantItem[]>(FALLBACK_PLAN_VARIANTS);
 
   // Modal & Toast State
-  let isDemoModalOpen = $state(false);
   let isRegistrationModalOpen = $state(false);
   let selectedVariant = $state<PlanVariantItem | null>(null);
   let selectedPlanName = $state('');
@@ -143,7 +141,7 @@
 
   <!-- Main Landing Content -->
   <main class="relative z-10">
-    <HeroSection {locale} onOpenDemo={() => (isDemoModalOpen = true)} />
+    <HeroSection {locale} />
     <RealFeatureShowcase />
     <LunaryFeatureGrid />
     <ComparisonTable {locale} />
@@ -161,53 +159,6 @@
 
   <!-- Main Footer -->
   <Footer {locale} />
-
-  <!-- Interactive Demo Preview Modal -->
-  <Modal
-    isOpen={isDemoModalOpen}
-    title="Tur Fitur 2 Menit: Lunary App"
-    onclose={() => (isDemoModalOpen = false)}
-  >
-    <div class="space-y-4">
-      <div class="aspect-video w-full rounded-2xl bg-brand-surface border border-white/10 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
-        <div class="w-16 h-16 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center text-3xl mb-4 animate-pulse">
-          ▶
-        </div>
-        <h4 class="text-lg font-bold text-white mb-2">Simulasi Dasbor Interaktif</h4>
-        <p class="text-xs sm:text-sm text-slate-400 max-w-md">
-          Pengalaman mencatat keuangan personal tanpa gesekan: sinkronisasi multi-wallet, envelope budgeting otomatis, dan pelunasan dana talangan secara real-time.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 pt-2">
-        <div class="p-3.5 rounded-xl bg-brand-surface border border-white/5 text-xs">
-          <span class="text-brand-cyan font-bold block mb-1">✓ Enkripsi Bank-Grade</span>
-          <span class="text-slate-400">Data terlindungi enkripsi AES-256 end-to-end.</span>
-        </div>
-        <div class="p-3.5 rounded-xl bg-brand-surface border border-white/5 text-xs">
-          <span class="text-brand-cyan font-bold block mb-1">✓ Multi-Platform</span>
-          <span class="text-slate-400">Akses mulus dari browser desktop maupun ponsel.</span>
-        </div>
-      </div>
-
-      <div class="pt-4 flex justify-end gap-3">
-        <button
-          type="button"
-          class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
-          onclick={() => (isDemoModalOpen = false)}
-        >
-          Tutup
-        </button>
-        <a
-          class="px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-brand-primary hover:bg-brand-primaryHover transition-all shadow-glow-primary cursor-pointer"
-          href="#harga"
-          onclick={() => (isDemoModalOpen = false)}
-        >
-          Lihat Paket
-        </a>
-      </div>
-    </div>
-  </Modal>
 
   <!-- Global Toast Notification -->
   <Toast toast={activeToast} ondismiss={() => (activeToast = null)} />

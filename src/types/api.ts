@@ -62,16 +62,6 @@ export interface LandingPageApiResponse {
   plan_variants: PlanVariantItem[];
 }
 
-export interface LeadSubmissionPayload {
-  email: string;
-  source?: string;
-}
-
-export interface LeadSubmissionResponse {
-  success: boolean;
-  message: string;
-}
-
 export interface PaymentMethodItem {
   paymentMethod: string;
   paymentName: string;
