@@ -18,28 +18,50 @@
   import {
     FALLBACK_TESTIMONIALS,
     FALLBACK_FAQS,
-    FALLBACK_PRICING_TIERS,
+    FALLBACK_MODULE_PLANS,
+    FALLBACK_PLAN_VARIANTS,
   } from '@/data/fallbackLandingData';
-  import type { TestimonialItem, FaqItem } from '@/types/api';
-  import type { NormalizedPricingTier, ToastMessage } from '@/types/landing';
-  import type { Locale } from '@/types/landing';
-  import { formatRupiah } from '@/utils/formatters';
+  import type { TestimonialItem, FaqItem, ModulePlanItem, PlanVariantItem } from '@/types/api';
+  import type { Locale, ToastMessage } from '@/types/landing';
 
-  // API State
+  // API State (Directly matches API contract from /api/landing-page)
   let isLoading = $state(true);
   let testimonials = $state<TestimonialItem[]>(FALLBACK_TESTIMONIALS);
   let faqs = $state<FaqItem[]>(FALLBACK_FAQS);
-  let pricingTiers = $state<NormalizedPricingTier[]>(FALLBACK_PRICING_TIERS);
+  let modulePlans = $state<ModulePlanItem[]>(FALLBACK_MODULE_PLANS);
+  let planVariants = $state<PlanVariantItem[]>(FALLBACK_PLAN_VARIANTS);
 
   // Modal & Toast State
   let isDemoModalOpen = $state(false);
   let activeToast = $state<ToastMessage | null>(null);
   let locale = $state<Locale>('id');
 
-  function setLocale(nextLocale: Locale) {
+  async function loadLandingData(currentLocale: Locale) {
+    isLoading = true;
+    try {
+      const data = await landingService.getLandingPageData(currentLocale);
+
+      testimonials = data.testimonials?.length > 0 ? data.testimonials : FALLBACK_TESTIMONIALS;
+      faqs = data.faqs?.length > 0 ? data.faqs : FALLBACK_FAQS;
+      modulePlans = data.module_plans?.length > 0 ? data.module_plans : FALLBACK_MODULE_PLANS;
+      planVariants = data.plan_variants?.length > 0 ? data.plan_variants : FALLBACK_PLAN_VARIANTS;
+    } catch (err) {
+      console.info('[Lunary] Backend offline or error, using fallback datasets.', err);
+      testimonials = FALLBACK_TESTIMONIALS;
+      faqs = FALLBACK_FAQS;
+      modulePlans = FALLBACK_MODULE_PLANS;
+      planVariants = FALLBACK_PLAN_VARIANTS;
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  async function setLocale(nextLocale: Locale) {
+    if (locale === nextLocale && !isLoading) return;
     locale = nextLocale;
     document.documentElement.lang = nextLocale;
     localStorage.setItem('lunary-locale', nextLocale);
+    await loadLandingData(nextLocale);
   }
 
   function showToast(toast: ToastMessage) {
@@ -51,11 +73,17 @@
     }, 5000);
   }
 
-  function handleSelectPlan(planId: string, cycle: string) {
+  function handleSelectPlan(planId: string | number, cycle: string) {
+    const isEn = locale === 'en';
+    const targetPlan = modulePlans.find((p) => String(p.id) === String(planId));
+    const planName = targetPlan ? targetPlan.name : String(planId);
+
     showToast({
       id: Date.now().toString(),
       type: 'info',
-      message: `Anda memilih paket ${planId.toUpperCase()} (${cycle}). Mengarahkan ke registrasi...`,
+      message: isEn
+        ? `You selected the ${planName} plan (${cycle}). Redirecting to signup...`
+        : `Anda memilih paket ${planName} (${cycle}). Mengarahkan ke registrasi...`,
     });
     // Open signup or scroll to final CTA
     const ctaEl = document.getElementById('cta');
@@ -64,82 +92,10 @@
 
   onMount(async () => {
     const storedLocale = localStorage.getItem('lunary-locale');
-    if (storedLocale === 'id' || storedLocale === 'en') setLocale(storedLocale);
-
-    try {
-      const data = await landingService.getLandingPageData();
-
-      // Update testimonials if available from backend
-      if (data.testimonials && data.testimonials.length > 0) {
-        const seenNames = new Set<string>();
-        testimonials = [...data.testimonials, ...FALLBACK_TESTIMONIALS].filter((item) => {
-          const normalizedName = item.name.trim().toLowerCase();
-          if (seenNames.has(normalizedName)) return false;
-
-          seenNames.add(normalizedName);
-          return true;
-        });
-      }
-
-      // Update faqs if available from backend
-      if (data.faqs && data.faqs.length > 0) {
-        faqs = data.faqs;
-      }
-
-      // Map module_plans & plan_variants to NormalizedPricingTier if available
-      if (data.module_plans && data.module_plans.length > 0) {
-        const mappedTiers: NormalizedPricingTier[] = data.module_plans.map((plan) => {
-          const variants = (data.plan_variants || []).filter(
-            (v) => String(v.module_plan_id ?? v.plan?.id) === String(plan.id)
-          );
-
-          const monthlyVar = variants.find((v) => v.billing_cycle === 'monthly' || v.expires_in === 30 || v.name?.toLowerCase().includes('monthly'));
-          const yearlyVar = variants.find((v) => v.billing_cycle === 'yearly' || v.expires_in === 365 || v.name?.toLowerCase().includes('yearly'));
-
-          const finalPrice = (variant: typeof monthlyVar) => {
-            if (!variant) return 0;
-            const discount = variant.discount_percentage ?? variant.discount ?? 0;
-            return Math.floor(variant.price * (100 - discount) / 100);
-          };
-          const monthlyRaw = finalPrice(monthlyVar);
-          const yearlyRaw = finalPrice(yearlyVar) || monthlyRaw * 10;
-          const planCode = plan.code || plan.name.toLowerCase();
-
-          return {
-            id: planCode,
-            name: plan.name,
-            subtitle: plan.description || 'Optimalkan arus kas dengan modul Lunary.',
-            monthlyPrice: formatRupiah(monthlyRaw),
-            monthlyRawPrice: monthlyRaw,
-            monthlyOriginalPrice: formatRupiah(monthlyVar?.price ?? monthlyRaw),
-            monthlyOriginalRawPrice: monthlyVar?.price ?? monthlyRaw,
-            monthlyDiscount: monthlyVar?.discount_percentage ?? monthlyVar?.discount ?? 0,
-            yearlyPrice: formatRupiah(yearlyRaw),
-            yearlyRawPrice: yearlyRaw,
-            yearlyOriginalPrice: formatRupiah(yearlyVar?.price ?? yearlyRaw),
-            yearlyOriginalRawPrice: yearlyVar?.price ?? yearlyRaw,
-            yearlyDiscount: yearlyVar?.discount_percentage ?? yearlyVar?.discount ?? 0,
-            featured: Boolean(plan.is_featured),
-            badge: plan.is_featured ? 'PALING POPULER' : undefined,
-            features: (plan.modules || []).map((m) => m.name),
-            ctaText: plan.is_featured || planCode === 'pro' ? 'Pilih Pro' : 'Pilih Starter',
-            ctaHref: '#harga',
-          };
-        });
-
-        if (mappedTiers.length > 0) {
-          pricingTiers = mappedTiers;
-        }
-      }
-    } catch (err) {
-      // Backend may be offline during initial dev, gracefully retain high-fidelity fallback data
-      console.info('[Lunary] Backend offline or loading, using high-fidelity fallback datasets.');
-    } finally {
-      // Simulate quick natural load transition
-      setTimeout(() => {
-        isLoading = false;
-      }, 350);
-    }
+    const initialLocale: Locale = (storedLocale === 'en' || storedLocale === 'id') ? storedLocale : 'id';
+    locale = initialLocale;
+    document.documentElement.lang = initialLocale;
+    await loadLandingData(initialLocale);
   });
 </script>
 
@@ -155,16 +111,17 @@
     <HeroSection {locale} onOpenDemo={() => (isDemoModalOpen = true)} />
     <RealFeatureShowcase />
     <LunaryFeatureGrid />
-    <ComparisonTable />
+    <ComparisonTable {locale} />
     <PricingSection
       {locale}
-      tiers={pricingTiers}
+      {modulePlans}
+      {planVariants}
       loading={isLoading}
       onSelectPlan={handleSelectPlan}
     />
-    <FaqSection faqs={faqs} loading={isLoading} />
+    <FaqSection {locale} faqs={faqs} loading={isLoading} />
     <TestimonialsSection {locale} testimonials={testimonials} loading={isLoading} />
-    <FinalCtaSection />
+    <FinalCtaSection {locale} />
   </main>
 
   <!-- Main Footer -->

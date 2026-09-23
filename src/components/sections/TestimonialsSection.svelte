@@ -31,7 +31,7 @@
   const c = $derived(copy[locale]);
   let slideIndex = $state(1);
   let activeOffset = $state(1);
-  let cardWidth = $state(0);
+  let cardWidth = $state(360);
   let carouselGap = $state(20);
   let slideOffset = $state(0);
   let isTransitionEnabled = $state(true);
@@ -76,17 +76,58 @@
     const horizontalPadding =
       (Number.parseFloat(styles.paddingLeft) || 0) + (Number.parseFloat(styles.paddingRight) || 0);
     const availableWidth = carouselElement.clientWidth - horizontalPadding;
+    if (availableWidth <= 0) return;
+
     const viewportWidth = window.innerWidth;
     const visibleCards = viewportWidth <= 640 ? 1 : viewportWidth <= 900 ? 2 : 3;
     const sidePeek = viewportWidth <= 640 ? 20 : Math.min(72, Math.max(16, viewportWidth * 0.05));
 
     carouselGap = viewportWidth <= 640 ? 16 : 20;
-    cardWidth = Math.max(
-      0,
-      (availableWidth - sidePeek * 2 - carouselGap * visibleCards) / visibleCards,
-    );
+    const calculatedWidth = (availableWidth - sidePeek * 2 - carouselGap * visibleCards) / visibleCards;
+    cardWidth = Math.max(260, calculatedWidth);
     slideOffset = -(slideIndex * (cardWidth + carouselGap)) + sidePeek;
   }
+
+  function carouselAction(node: HTMLDivElement) {
+    carouselElement = node;
+    updateActiveOffset();
+    updateCarouselMetrics();
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => {
+        updateActiveOffset();
+        updateCarouselMetrics();
+      });
+      ro.observe(node);
+    }
+
+    return {
+      destroy() {
+        ro?.disconnect();
+        if (carouselElement === node) {
+          carouselElement = undefined;
+        }
+      },
+    };
+  }
+
+  $effect(() => {
+    if (!loading && carouselElement) {
+      updateActiveOffset();
+      updateCarouselMetrics();
+    }
+  });
+
+  $effect(() => {
+    if (testimonials.length < 2) return;
+
+    const reduceMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    const rotationTimer = window.setInterval(advanceTestimonials, 2400);
+    return () => window.clearInterval(rotationTimer);
+  });
 
   onMount(() => {
     updateActiveOffset();
@@ -94,26 +135,11 @@
     window.addEventListener('resize', updateActiveOffset);
     window.addEventListener('resize', updateCarouselMetrics);
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion || testimonials.length < 2) {
-      return () => {
-        window.removeEventListener('resize', updateActiveOffset);
-        window.removeEventListener('resize', updateCarouselMetrics);
-      };
-    }
-
-    const rotationTimer = window.setInterval(advanceTestimonials, 2200);
     return () => {
-      window.clearInterval(rotationTimer);
       window.removeEventListener('resize', updateActiveOffset);
       window.removeEventListener('resize', updateCarouselMetrics);
     };
   });
-
-  function getHandle(name: string) {
-    const firstName = name.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user';
-    return `@${firstName}*****`;
-  }
 
   function getAvatar(index: number) {
     return `/assets/profile-${(index % 5) + 1}.svg`;
@@ -136,6 +162,7 @@
     <div
       class="testimonial-carousel mx-auto max-w-7xl px-4 pb-3 sm:px-6 lg:px-8"
       bind:this={carouselElement}
+      use:carouselAction
       role="region"
       aria-label={c.title}
       onfocusin={() => (isPaused = true)}
@@ -146,7 +173,7 @@
         class="testimonial-carousel-track"
         style={`--slide-offset: ${slideOffset}px; --card-width: ${cardWidth}px; --card-gap: ${carouselGap}px;`}
       >
-        {#each carouselTestimonials as item, index (item.id + '-' + index)}
+        {#each carouselTestimonials as item, index ((item.id ?? index) + '-' + index)}
             <article
               class="testimonial-card glass-card flex min-h-[248px] flex-col rounded-2xl border border-white/10 p-6 transition-colors hover:border-brand-cyan/40 sm:p-7"
               class:active-card={index === slideIndex + activeOffset}
@@ -159,12 +186,11 @@
                 />
                 <div class="min-w-0 text-left">
                   <h3 class="truncate text-sm font-bold text-white">{item.name}</h3>
-                  <p class="mt-0.5 text-xs text-slate-500">{getHandle(item.name)}</p>
                 </div>
               </header>
 
               <p class="mt-8 text-base leading-relaxed text-slate-300 sm:text-lg">
-                “{item.quote}”
+                “{item.quote || item.review}”
               </p>
             </article>
         {/each}
@@ -194,8 +220,9 @@
 
   .testimonial-card {
     position: relative;
-    flex: 0 0 var(--card-width);
-    min-width: 0;
+    flex: 0 0 var(--card-width, 360px);
+    width: var(--card-width, 360px);
+    min-width: min(280px, 85vw);
     z-index: 1;
     opacity: 0.62;
     transform: scale(0.91);

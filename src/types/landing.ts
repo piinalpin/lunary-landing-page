@@ -22,28 +22,6 @@ export interface ComparisonRow {
   lunaryHighlight?: string;
 }
 
-export interface NormalizedPricingTier {
-  id: string;
-  name: string;
-  subtitle: string;
-  monthlyPrice: string;
-  monthlyRawPrice: number;
-  monthlyOriginalPrice: string;
-  monthlyOriginalRawPrice: number;
-  monthlyDiscount: number;
-  yearlyPrice: string;
-  yearlyRawPrice: number;
-  yearlyOriginalPrice: string;
-  yearlyOriginalRawPrice: number;
-  yearlyDiscount: number;
-  featured: boolean;
-  badge?: string;
-  features: string[];
-  ctaText: string;
-  ctaHref: string;
-  popular?: boolean;
-}
-
 export interface ToastMessage {
   id: string;
   type: 'success' | 'error' | 'info';

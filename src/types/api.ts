@@ -3,19 +3,23 @@
  */
 
 export interface TestimonialItem {
-  id: string | number;
+  id?: string | number;
   name: string;
   role?: string;
   company?: string;
   avatar_url?: string;
-  quote: string;
+  avatar?: string;
+  quote?: string;
+  review?: string;
   rating?: number;
 }
 
 export interface FaqItem {
-  id: string | number;
+  id?: string | number;
   question: string;
   answer: string;
+  sequence?: number;
+  lang?: string;
   category?: string;
 }
 
@@ -41,13 +45,14 @@ export interface PlanVariantItem {
   plan?: { id: string | number; name: string };
   name?: string;
   expires_in?: number;
-  discount?: number;
+  discount?: number | string;
   active?: boolean;
   is_best_value?: boolean;
-  billing_cycle: 'monthly' | 'yearly' | 'lifetime' | string;
-  price: number;
+  billing_cycle?: 'monthly' | 'yearly' | 'lifetime' | string;
+  price: number | string;
+  final_price?: number | string;
   formatted_price?: string;
-  discount_percentage?: number;
+  discount_percentage?: number | string;
 }
 
 export interface LandingPageApiResponse {

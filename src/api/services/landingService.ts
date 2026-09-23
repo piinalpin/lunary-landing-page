@@ -1,13 +1,16 @@
 import { apiClient } from '@/api/client';
 import { ENDPOINTS } from '@/api/endpoints';
 import type { LandingPageApiResponse, LeadSubmissionResponse } from '@/types/api';
+import type { Locale } from '@/types/landing';
 
 export const landingService = {
   /**
-   * Fetch landing page data from Laravel backend /api/landing-page
+   * Fetch landing page data from Laravel backend /api/landing-page with lang parameter
    */
-  async getLandingPageData(): Promise<LandingPageApiResponse> {
-    return apiClient.get<LandingPageApiResponse>(ENDPOINTS.LANDING_PAGE);
+  async getLandingPageData(lang: Locale = 'id'): Promise<LandingPageApiResponse> {
+    return apiClient.get<LandingPageApiResponse>(ENDPOINTS.LANDING_PAGE, {
+      params: { lang },
+    });
   },
 
   /**
@@ -32,4 +35,3 @@ export const landingService = {
     }
   },
 };
-

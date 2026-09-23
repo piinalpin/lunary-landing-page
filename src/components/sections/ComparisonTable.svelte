@@ -1,39 +1,79 @@
 <script lang="ts">
-  const comparisons = [
-    {
-      icon: 'grid',
-      title: 'Spreadsheet',
-      pains: ['Sulit dibuka dari HP', 'Rumus mudah keliru', 'Harus zoom terus'],
-      benefits: ['Catat cepat di mana saja', 'Hitung otomatis dan konsisten', 'Ringkasan langsung terbaca'],
+  import type { Locale } from '@/types/landing';
+
+  interface Props {
+    locale?: Locale;
+  }
+
+  let { locale = 'id' }: Props = $props();
+
+  const copy = {
+    id: {
+      heading: 'Mengatur uang tidak harus ribet.',
+      subheading: 'Lunary merapikan hal-hal yang biasanya bikin pencatatan keuangan berhenti di tengah jalan.',
+      comparisons: [
+        {
+          icon: 'grid',
+          title: 'Spreadsheet',
+          pains: ['Sulit dibuka dari HP', 'Rumus mudah keliru', 'Harus zoom terus'],
+          benefits: ['Catat cepat di mana saja', 'Hitung otomatis dan konsisten', 'Ringkasan langsung terbaca'],
+        },
+        {
+          icon: 'note',
+          title: 'Catatan HP',
+          pains: ['Total masih manual', 'Catatan cepat berantakan', 'Sulit lihat tren bulanan'],
+          benefits: ['Kategori dan cashflow rapi', 'Budget terlihat sebelum lewat', 'Analisis bulanan mudah dipantau'],
+        },
+        {
+          icon: 'app',
+          title: 'Aplikasi lainnya',
+          pains: ['Menu penting tersebar', 'Cashflow dan budget terpisah', 'Analisis sulit ditemukan'],
+          benefits: ['Catat, pantau, rencanakan', 'Budget dan cashflow menyatu', 'Analisis mudah ditindaklanjuti'],
+        },
+      ],
     },
-    {
-      icon: 'note',
-      title: 'Catatan HP',
-      pains: ['Total masih manual', 'Catatan cepat berantakan', 'Sulit lihat tren bulanan'],
-      benefits: ['Kategori dan cashflow rapi', 'Budget terlihat sebelum lewat', 'Analisis bulanan mudah dipantau'],
+    en: {
+      heading: 'Managing money does not have to be painful.',
+      subheading: 'Lunary simplifies the bottlenecks that usually make personal bookkeeping fail halfway.',
+      comparisons: [
+        {
+          icon: 'grid',
+          title: 'Spreadsheet',
+          pains: ['Clunky on mobile phones', 'Formulas easily break', 'Constant pinching and zooming'],
+          benefits: ['Quick log anywhere', 'Automatic and reliable calculations', 'Instant clean summaries'],
+        },
+        {
+          icon: 'note',
+          title: 'Phone Notes',
+          pains: ['Manual math required', 'Quickly turns messy', 'Hard to track monthly trends'],
+          benefits: ['Clean categories and cashflow', 'Budget visibility before overspending', 'Easy-to-track monthly insights'],
+        },
+        {
+          icon: 'app',
+          title: 'Other Apps',
+          pains: ['Scattered navigation', 'Cashflow and budget separated', 'Hidden or cluttered analytics'],
+          benefits: ['Log, track, and plan seamlessly', 'Unified budget and cashflow', 'Actionable financial insights'],
+        },
+      ],
     },
-    {
-      icon: 'app',
-      title: 'Aplikasi lainnya',
-      pains: ['Menu penting tersebar', 'Cashflow dan budget terpisah', 'Analisis sulit ditemukan'],
-      benefits: ['Catat, pantau, rencanakan', 'Budget dan cashflow menyatu', 'Analisis mudah ditindaklanjuti'],
-    },
-  ];
+  };
+
+  const c = $derived(copy[locale] ?? copy.id);
 </script>
 
 <section class="comparison-section relative z-10 border-t border-white/5 px-4 py-20 sm:px-6 lg:py-28">
   <div class="mx-auto max-w-7xl">
     <div class="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
       <h2 class="text-3xl font-extrabold leading-tight text-white sm:text-4xl">
-        Mengatur uang tidak harus ribet.
+        {c.heading}
       </h2>
       <p class="mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">
-        Lunary merapikan hal-hal yang biasanya bikin pencatatan keuangan berhenti di tengah jalan.
+        {c.subheading}
       </p>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-      {#each comparisons as comparison}
+      {#each c.comparisons as comparison}
         <article class="comparison-card">
           <div class="comparison-body">
             <div class="old-method">

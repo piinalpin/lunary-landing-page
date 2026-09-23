@@ -1,5 +1,5 @@
-import type { TestimonialItem, FaqItem } from '@/types/api';
-import type { BentoFeature, ComparisonRow, NormalizedPricingTier } from '@/types/landing';
+import type { TestimonialItem, FaqItem, ModulePlanItem, PlanVariantItem } from '@/types/api';
+import type { BentoFeature, ComparisonRow } from '@/types/landing';
 
 export const FALLBACK_TESTIMONIALS: TestimonialItem[] = [
   {
@@ -89,60 +89,96 @@ export const FALLBACK_FAQS: FaqItem[] = [
   },
 ];
 
-export const FALLBACK_PRICING_TIERS: NormalizedPricingTier[] = [
+export const FALLBACK_MODULE_PLANS: ModulePlanItem[] = [
   {
-    id: 'starter',
+    id: '9c0e9e6a-7be4-409e-8406-569bbc8c6541',
     name: 'Starter',
-    subtitle: 'Fitur esensial untuk mencatat dan memantau keuangan sehari-hari.',
-    monthlyPrice: 'Rp 7.499',
-    monthlyRawPrice: 7499,
-    monthlyOriginalPrice: 'Rp 14.999',
-    monthlyOriginalRawPrice: 14999,
-    monthlyDiscount: 50,
-    yearlyPrice: 'Rp 80.999',
-    yearlyRawPrice: 80999,
-    yearlyOriginalPrice: 'Rp 179.999',
-    yearlyOriginalRawPrice: 179999,
-    yearlyDiscount: 55,
-    featured: false,
-    features: [
-      'Dashboard',
-      'Cashflow',
-      'Invest & Savings',
-      'Wallet',
-      'Category',
-      'Annual Report',
+    modules: [
+      { id: '1', code: 'dashboard', name: 'Dashboard' },
+      { id: '2', code: 'cashflow', name: 'Cashflow' },
+      { id: '3', code: 'savings', name: 'Invest & Savings' },
+      { id: '4', code: 'wallet', name: 'Wallet' },
+      { id: '5', code: 'category', name: 'Category' },
+      { id: '6', code: 'annual-report', name: 'Annual Report' },
     ],
-    ctaText: 'Pilih Starter',
-    ctaHref: '#harga',
   },
   {
-    id: 'pro',
+    id: '9f67a8a7-e248-4d5e-8fee-77cd622143b0',
     name: 'Pro',
-    subtitle: 'Untuk individu yang serius mengoptimalkan kekayaan.',
-    monthlyPrice: 'Rp 12.499',
-    monthlyRawPrice: 12499,
-    monthlyOriginalPrice: 'Rp 24.999',
-    monthlyOriginalRawPrice: 24999,
-    monthlyDiscount: 50,
-    yearlyPrice: 'Rp 134.999',
-    yearlyRawPrice: 134999,
-    yearlyOriginalPrice: 'Rp 299.999',
-    yearlyOriginalRawPrice: 299999,
-    yearlyDiscount: 55,
-    featured: true,
-    popular: true,
-    badge: 'PALING POPULER',
-    features: [
-      'Financial Goals',
-      'Bills',
-      'Installments',
-      'Calendar',
-      'Monthly Analysis',
-      'Use Funds',
+    modules: [
+      { id: '1', code: 'dashboard', name: 'Dashboard' },
+      { id: '2', code: 'cashflow', name: 'Cashflow' },
+      { id: '3', code: 'savings', name: 'Invest & Savings' },
+      { id: '7', code: 'goals', name: 'Financial Goals' },
+      { id: '8', code: 'bills', name: 'Bills' },
+      { id: '9', code: 'installments', name: 'Installments' },
+      { id: '4', code: 'wallet', name: 'Wallet' },
+      { id: '5', code: 'category', name: 'Category' },
+      { id: '6', code: 'annual-report', name: 'Annual Report' },
+      { id: '10', code: 'calendar', name: 'Calendar' },
+      { id: '11', code: 'compare-period', name: 'Compare Period' },
+      { id: '12', code: 'analytics', name: 'Monthly Analysis' },
+      { id: '13', code: 'use-funds', name: 'Use Funds' },
     ],
-    ctaText: 'Pilih Pro',
-    ctaHref: '#harga',
+  },
+];
+
+export const FALLBACK_PLAN_VARIANTS: PlanVariantItem[] = [
+  {
+    id: '4e48501d-2720-4316-b244-3f857b0bba84',
+    name: 'Starter Monthly',
+    expires_in: 30,
+    price: '14999.00',
+    final_price: 7499,
+    discount: '50.00',
+    active: true,
+    is_best_value: false,
+    plan: {
+      id: '9c0e9e6a-7be4-409e-8406-569bbc8c6541',
+      name: 'Starter',
+    },
+  },
+  {
+    id: '02d0610f-9429-40b7-abfa-58d07111382e',
+    name: 'Starter Yearly',
+    expires_in: 365,
+    price: '179999.00',
+    final_price: 80999,
+    discount: '55.00',
+    active: true,
+    is_best_value: false,
+    plan: {
+      id: '9c0e9e6a-7be4-409e-8406-569bbc8c6541',
+      name: 'Starter',
+    },
+  },
+  {
+    id: 'cee663be-fd8a-4e4a-92f6-6c4c56bc1342',
+    name: 'Pro Monthly',
+    expires_in: 30,
+    price: '24999.00',
+    final_price: 12499,
+    discount: '50.00',
+    active: true,
+    is_best_value: false,
+    plan: {
+      id: '9f67a8a7-e248-4d5e-8fee-77cd622143b0',
+      name: 'Pro',
+    },
+  },
+  {
+    id: '65759da0-c216-4c0f-8b11-de62ef8664da',
+    name: 'Pro Yearly',
+    expires_in: 365,
+    price: '299999.00',
+    final_price: 134999,
+    discount: '55.00',
+    active: true,
+    is_best_value: true,
+    plan: {
+      id: '9f67a8a7-e248-4d5e-8fee-77cd622143b0',
+      name: 'Pro',
+    },
   },
 ];
 
