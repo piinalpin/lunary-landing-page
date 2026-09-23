@@ -15,6 +15,7 @@
   import Toast from '@/components/common/Toast.svelte';
 
   import { landingService } from '@/api/services/landingService';
+  import RegistrationModal from '@/components/registration/RegistrationModal.svelte';
   import {
     FALLBACK_TESTIMONIALS,
     FALLBACK_FAQS,
@@ -33,6 +34,9 @@
 
   // Modal & Toast State
   let isDemoModalOpen = $state(false);
+  let isRegistrationModalOpen = $state(false);
+  let selectedVariant = $state<PlanVariantItem | null>(null);
+  let selectedPlanName = $state('');
   let activeToast = $state<ToastMessage | null>(null);
   let locale = $state<Locale>('id');
 
@@ -74,20 +78,51 @@
   }
 
   function handleSelectPlan(planId: string | number, cycle: string) {
-    const isEn = locale === 'en';
     const targetPlan = modulePlans.find((p) => String(p.id) === String(planId));
-    const planName = targetPlan ? targetPlan.name : String(planId);
+    if (!targetPlan) return;
 
-    showToast({
-      id: Date.now().toString(),
-      type: 'info',
-      message: isEn
-        ? `You selected the ${planName} plan (${cycle}). Redirecting to signup...`
-        : `Anda memilih paket ${planName} (${cycle}). Mengarahkan ke registrasi...`,
+    const isMonthly = cycle === 'monthly';
+    const match = planVariants.find((v) => {
+      const planMatch =
+        String(v.plan?.id ?? v.module_plan_id) === String(targetPlan.id) ||
+        v.plan?.name?.trim().toLowerCase() === targetPlan.name.trim().toLowerCase() ||
+        v.name?.toLowerCase().includes(targetPlan.name.toLowerCase());
+      const cycleMatch = isMonthly
+        ? v.expires_in === 30 ||
+          v.billing_cycle === 'monthly' ||
+          v.name?.toLowerCase().includes('monthly')
+        : v.expires_in === 365 ||
+          v.billing_cycle === 'yearly' ||
+          v.name?.toLowerCase().includes('yearly');
+      return planMatch && cycleMatch;
     });
-    // Open signup or scroll to final CTA
-    const ctaEl = document.getElementById('cta');
-    ctaEl?.scrollIntoView({ behavior: 'smooth' });
+
+    if (!match) {
+      showToast({
+        id: Date.now().toString(),
+        type: 'error',
+        message:
+          locale === 'en'
+            ? 'Plan variant is unavailable. Refresh the page and try again.'
+            : 'Varian paket tidak tersedia. Muat ulang halaman lalu coba lagi.',
+      });
+      return;
+    }
+
+    selectedVariant = match;
+    selectedPlanName = targetPlan.name;
+    isRegistrationModalOpen = true;
+  }
+
+  function handleCtaRegister() {
+    const fallback = planVariants.find((v) => v.is_best_value) ?? planVariants[0];
+    if (!fallback) {
+      document.getElementById('harga')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    selectedVariant = fallback;
+    selectedPlanName = fallback.plan?.name ?? fallback.name ?? '';
+    isRegistrationModalOpen = true;
   }
 
   onMount(async () => {
@@ -121,7 +156,7 @@
     />
     <FaqSection {locale} faqs={faqs} loading={isLoading} />
     <TestimonialsSection {locale} testimonials={testimonials} loading={isLoading} />
-    <FinalCtaSection {locale} />
+    <FinalCtaSection {locale} onRegister={handleCtaRegister} />
   </main>
 
   <!-- Main Footer -->
@@ -176,4 +211,13 @@
 
   <!-- Global Toast Notification -->
   <Toast toast={activeToast} ondismiss={() => (activeToast = null)} />
+
+  <!-- Registration & Payment Modal -->
+  <RegistrationModal
+    isOpen={isRegistrationModalOpen}
+    variant={selectedVariant}
+    planName={selectedPlanName}
+    {locale}
+    onclose={() => (isRegistrationModalOpen = false)}
+  />
 </div>

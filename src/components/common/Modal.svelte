@@ -44,7 +44,7 @@
       {#if hideHeader}
         <button
           type="button"
-          class="absolute right-5 top-5 z-10 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
+          class="absolute right-4 top-4 z-10 w-11 h-11 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
           onclick={onclose}
           aria-label="Tutup dialog"
         >
@@ -58,7 +58,7 @@
           </h3>
           <button
             type="button"
-            class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
+            class="w-11 h-11 -mr-2 -my-2 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
             onclick={onclose}
             aria-label="Tutup dialog"
           >
