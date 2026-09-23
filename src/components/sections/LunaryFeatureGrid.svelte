@@ -5,6 +5,7 @@
     title: string;
     src: string;
     alt: string;
+    type?: 'image' | 'video';
   };
 
   type Feature = {
@@ -26,7 +27,7 @@
       paths: ['M4 19V5', 'M4 19h16', 'm7 14 3-4 3 2 5-6'],
       preview: {
         title: 'Contoh analisis Lunary',
-        src: '/assets/product/lunary-analysis-mobile.png',
+        src: '/assets/product/laporan-tahunan.png',
         alt: 'Tampilan analisis finansial Lunary',
       },
     },
@@ -38,8 +39,9 @@
       paths: ['M5 5h14v14H5z', 'M9 9h.01', 'M15 9h.01', 'M9 15h.01', 'M15 15h.01'],
       preview: {
         title: 'Contoh tampilan cashflow Lunary',
-        src: '/assets/product/lunary-cashflow.webp',
+        src: '/assets/product/cashflow-view.mp4',
         alt: 'Tampilan cashflow Lunary',
+        type: 'video',
       },
     },
     {
@@ -85,13 +87,24 @@
       accent: '#4dd9a4',
       soft: 'rgba(77, 217, 164, 0.12)',
       paths: ['M3 7h18v13H3z', 'M3 7l2-4h14l2 4', 'M16 13h.01'],
+      preview: {
+        title: 'Contoh dompet Lunary',
+        src: '/assets/product/lunary-wallet.png',
+        alt: 'Tampilan dompet Lunary',
+      },
     },
     {
-      title: 'Privasi tetap di tanganmu',
-      description: 'Sembunyikan nominal saat dibutuhkan dan atur pengalaman finansialmu dengan lebih privat.',
+      title: 'Autocashflow lebih praktis',
+      description: 'Gunakan kembali kategori dan transaksi rutin setiap bulan tanpa perlu ribet menginputnya dari awal.',
       accent: '#72a9ff',
       soft: 'rgba(114, 169, 255, 0.12)',
-      paths: ['M5 11a7 7 0 0 1 14 0', 'M5 11v7h14v-7', 'M9 18v2h6v-2'],
+      paths: ['M20 11a8 8 0 0 0-14.9-4', 'M4 4v5h5', 'M4 13a8 8 0 0 0 14.9 4', 'M20 20v-5h-5'],
+      preview: {
+        title: 'Contoh Auto Cashflow Lunary',
+        src: '/assets/product/lunary-autocashflow.mp4',
+        alt: 'Demo Auto Cashflow Lunary',
+        type: 'video',
+      },
     },
   ];
 
@@ -100,7 +113,7 @@
 
 <section class="feature-grid-section" id="ekosistem" aria-labelledby="feature-grid-title">
   <div class="feature-grid-section__intro">
-    <h2 id="feature-grid-title">Semua yang kamu butuhkan untuk memahami uangmu.</h2>
+    <h2 id="feature-grid-title">Mengapa Lunary ?</h2>
     <p>Dari detail harian sampai perkembangan finansial sepanjang tahun, semuanya tersusun dalam satu tempat.</p>
   </div>
 
@@ -150,11 +163,19 @@
 <Modal
   isOpen={activePreview !== null}
   title={activePreview?.title ?? 'Pratinjau Lunary'}
+  wide
+  hideHeader
   onclose={() => (activePreview = null)}
 >
   {#if activePreview}
     <div class="feature-preview-media">
-      <img src={activePreview.src} alt={activePreview.alt} />
+      {#if activePreview.type === 'video'}
+        <video controls autoplay muted loop playsinline aria-label={activePreview.alt}>
+          <source src={activePreview.src} type="video/mp4" />
+        </video>
+      {:else}
+        <img src={activePreview.src} alt={activePreview.alt} />
+      {/if}
     </div>
   {/if}
 </Modal>
@@ -306,7 +327,7 @@
 
   .feature-preview-media {
     display: flex;
-    max-height: 68vh;
+    max-height: 74vh;
     align-items: center;
     justify-content: center;
     overflow: auto;
@@ -315,10 +336,12 @@
     background: #080c17;
   }
 
-  .feature-preview-media img {
+  .feature-preview-media img,
+  .feature-preview-media video {
     display: block;
-    width: 100%;
-    max-height: 66vh;
+    width: auto;
+    max-width: 100%;
+    max-height: 72vh;
     object-fit: contain;
   }
 

@@ -18,7 +18,7 @@
       </div>
       <div class="real-feature__media real-feature__media--cashflow">
         <img
-          src="/assets/product/lunary-demo-starter.png"
+          src="/assets/product/lunary-cashflow.png"
           alt="Tampilan asli Lunary Cashflow pada akun Starter demo-starter"
           loading="lazy"
         />
@@ -36,7 +36,7 @@
       </div>
       <div class="real-feature__media real-feature__media--analysis real-feature__media--budget">
         <img
-          src="/assets/product/lunary-spending-starter.png"
+          src="/assets/product/lunary-spending.png"
           alt="Tampilan asli Lunary Spending pada akun Starter"
           loading="lazy"
         />
@@ -63,14 +63,14 @@
       </div>
       <div class="device-frame device-frame--tablet">
         <img
-          src="/assets/product/lunary-monthly-analysis.png"
+          src="/assets/product/lunary-tablet.png"
           alt="Lunary Analisis Bulanan pada tablet portrait"
           loading="lazy"
         />
       </div>
       <div class="device-frame device-frame--phone">
         <img
-          src="/assets/product/lunary-analysis-mobile.png"
+          src="/assets/product/lunary-mobile.png"
           alt="Preview portrait Analisis Bulanan Lunary di ponsel"
           loading="lazy"
         />

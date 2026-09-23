@@ -12,7 +12,7 @@
   let { locale, onLocaleChange }: Props = $props();
 
   const copy = {
-    id: { nav: ['Fitur', 'Paket Harga', 'FAQ', 'Testimoni'], login: 'Login', menu: 'Buka menu', close: 'Tutup', aria: 'Navigasi utama' },
+    id: { nav: ['Fitur', 'Paket Harga', 'FAQ', 'Testimoni'], login: 'Masuk', menu: 'Buka menu', close: 'Tutup', aria: 'Navigasi utama' },
     en: { nav: ['Features', 'Pricing', 'FAQ', 'Testimonials'], login: 'Sign in', menu: 'Open menu', close: 'Close menu', aria: 'Main navigation' },
   } as const;
 
