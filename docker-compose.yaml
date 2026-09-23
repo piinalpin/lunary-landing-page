@@ -18,6 +18,8 @@ services:
     container_name: lunary-landing-page
     image: ryujinlabs/lunary-landing-page:${BUILD_VERSION:-latest}
     restart: unless-stopped
+    networks:
+      - proxy-net
     labels:
       traefik.enable: true
       traefik.docker.network: proxy-net
