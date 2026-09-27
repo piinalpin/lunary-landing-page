@@ -93,6 +93,7 @@
       waitingPaymentDetail: 'Kami sedang menunggu konfirmasi dari penyedia pembayaran.',
       paymentSuccessful: 'Pembayaran Berhasil',
       paymentSuccessfulDetail: 'Pembayaran Anda telah terkonfirmasi.',
+      checkRegisteredEmail: 'Cek email terdaftar untuk info aktivasi akun:',
       done: 'Selesai',
     },
     en: {
@@ -144,6 +145,7 @@
       waitingPaymentDetail: 'We are waiting for confirmation from the payment provider.',
       paymentSuccessful: 'Payment Successful',
       paymentSuccessfulDetail: 'Your payment has been confirmed.',
+      checkRegisteredEmail: 'Check your registered email for account activation details:',
       done: 'Done',
     },
   } as const;
@@ -668,6 +670,12 @@
         <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-400">
           {paymentStatus === 'successful' ? c.paymentSuccessfulDetail : c.waitingPaymentDetail}
         </p>
+        {#if paymentStatus === 'successful'}
+          <p class="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-slate-300">
+            {c.checkRegisteredEmail}
+            <span class="mt-1 block break-all font-semibold text-white">{email.trim()}</span>
+          </p>
+        {/if}
       </div>
       <button
         type="button"
