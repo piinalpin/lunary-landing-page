@@ -211,4 +211,12 @@
     .old-method { padding: 1.25rem; }
     .lunary-method { border-top: 1px solid rgb(148 163 184 / 0.1); }
   }
+
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .comparison-card:last-child {
+      grid-column: 1 / -1;
+      width: calc((100% - 1rem) / 2);
+      justify-self: center;
+    }
+  }
 </style>

@@ -47,7 +47,7 @@
   <div class="real-features__devices">
     <div>
       <span class="real-features__eyebrow">IKUT KE MANA KAMU PERGI</span>
-      <h3>Catat dari HP, review di tablet, lanjutkan dari laptop.</h3>
+      <h3>Catat cepat dari HP, review di tablet, lanjutkan dari laptop.</h3>
       <p>
         Lunary tetap terasa rapi di layar kecil maupun besar, jadi urusan uang tidak harus
         menunggu sampai kamu duduk di depan laptop.
@@ -56,8 +56,8 @@
     <div class="device-stack" aria-label="Lunary tersedia di berbagai perangkat">
       <div class="device-frame device-frame--laptop">
         <img
-          src="/assets/product/lunary-demo-starter.png"
-          alt="Lunary Cashflow pada akun Starter demo-starter di laptop"
+          src="/assets/product/lunary-invest.png"
+          alt="Lunary Investasi dan Tabungan pada laptop"
           loading="lazy"
         />
       </div>
@@ -70,8 +70,8 @@
       </div>
       <div class="device-frame device-frame--phone">
         <img
-          src="/assets/product/lunary-mobile.png"
-          alt="Preview portrait Analisis Bulanan Lunary di ponsel"
+          src="/assets/product/lunary-quick.png"
+          alt="Preview Lunary Quick di ponsel"
           loading="lazy"
         />
       </div>
@@ -95,7 +95,7 @@
   }
 
   .real-features__eyebrow {
-    color: #5b68ff;
+    color: #8b5cff;
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.18em;
@@ -147,7 +147,7 @@
   }
 
   .real-feature__number {
-    color: #5b68ff;
+    color: #8b5cff;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.78rem;
     font-weight: 700;
@@ -171,10 +171,10 @@
   .real-feature__tag {
     margin-top: 1.5rem;
     padding: 0.55rem 0.8rem;
-    border: 1px solid rgba(0, 216, 170, 0.25);
+    border: 0;
     border-radius: 999px;
-    color: #00d8aa;
-    background: rgba(0, 216, 170, 0.08);
+    color: #07131f;
+    background: #12d8d0;
     font-size: 0.75rem;
     font-weight: 700;
   }

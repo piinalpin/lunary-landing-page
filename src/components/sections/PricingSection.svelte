@@ -215,7 +215,7 @@
           <div class="mb-7 border-b border-white/10 pb-7">
             <div class="mb-5 flex min-h-7 flex-wrap items-center justify-between gap-2 {isBestValue ? 'pr-12' : ''}">
               <div class="flex items-center gap-3">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {isPro ? 'bg-brand-primary/15 text-brand-cyan' : 'bg-brand-cyan/10 text-brand-cyan'}" aria-hidden="true">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {isPro ? 'bg-brand-primary text-white' : 'bg-brand-cyan text-brand-dark'}" aria-hidden="true">
                   {#if isPro}
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 3 2.1 4.25 4.7.68-3.4 3.32.8 4.68L12 13.72l-4.2 2.21.8-4.68-3.4-3.32 4.7-.68L12 3Z" />
@@ -229,7 +229,7 @@
                 <h3 class="text-2xl font-black uppercase tracking-tight text-white">{plan.name}</h3>
               </div>
               {#if isPro}
-                <span class="rounded-md border border-brand-primary/50 px-2.5 py-1 text-[10px] font-black uppercase text-brand-cyan">
+                <span class="rounded-md bg-brand-primary px-2.5 py-1 text-[10px] font-black uppercase text-white">
                   {c.complete}
                 </span>
               {/if}
@@ -241,7 +241,7 @@
             {#if pricing.discount > 0}
               <div class="mb-3 flex flex-wrap items-center gap-3">
                 <span class="text-sm font-bold text-slate-400 line-through">{pricing.originalPrice}</span>
-                <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-black uppercase text-emerald-300">
+                <span class="rounded-full bg-emerald-400 px-3 py-1 text-xs font-black uppercase text-slate-950">
                   {c.save} {Math.round(pricing.discount)}%
                 </span>
               </div>
@@ -254,13 +254,13 @@
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {#each plan.modules as module}
                 <div class="flex min-w-0 items-center gap-3">
-                  <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-cyan/10 text-brand-cyan">✓</span>
+                  <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-cyan text-brand-dark">✓</span>
                   <span class="text-sm font-bold text-slate-300">{translateFeature(module.code, module.name)}</span>
                 </div>
               {/each}
               {#if isPro}
                 <div class="flex min-w-0 items-center gap-3">
-                  <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-cyan/10 text-brand-cyan">✓</span>
+                  <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-cyan text-brand-dark">✓</span>
                   <span class="text-sm font-bold text-slate-300">
                     {locale === 'id' ? idFeatureTranslations['more-theme'] : '20+ Themes'}
                   </span>

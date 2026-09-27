@@ -6,6 +6,7 @@
     src: string;
     alt: string;
     type?: 'image' | 'video';
+    mimeType?: string;
   };
 
   type Feature = {
@@ -22,8 +23,8 @@
     {
       title: 'Analisis tahunan yang lebih jelas',
       description: 'Lihat perkembangan pemasukan, pengeluaran, dan kebiasaan finansialmu sepanjang tahun.',
-      accent: '#7c83ff',
-      soft: 'rgba(124, 131, 255, 0.12)',
+      accent: '#8875f2',
+      soft: 'rgba(136, 117, 242, 0.12)',
       paths: ['M4 19V5', 'M4 19h16', 'm7 14 3-4 3 2 5-6'],
       preview: {
         title: 'Contoh analisis Lunary',
@@ -34,8 +35,8 @@
     {
       title: 'Tampilan cashflow sesuai gayamu',
       description: 'Pilih tampilan simple atau visual dengan simbol agar pencatatan terasa lebih nyaman.',
-      accent: '#19d3b0',
-      soft: 'rgba(25, 211, 176, 0.12)',
+      accent: '#36c4b2',
+      soft: 'rgba(54, 196, 178, 0.12)',
       paths: ['M5 5h14v14H5z', 'M9 9h.01', 'M15 9h.01', 'M9 15h.01', 'M15 15h.01'],
       preview: {
         title: 'Contoh tampilan cashflow Lunary',
@@ -48,20 +49,27 @@
       title: 'Pakai dana tanpa bikin cashflow berantakan',
       description: 'Gunakan dana dari dompet atau tabungan dengan pencatatan yang tetap jelas.',
       pro: true,
-      accent: '#f7b955',
-      soft: 'rgba(247, 185, 85, 0.12)',
+      accent: '#36c4b2',
+      soft: 'rgba(54, 196, 178, 0.12)',
       paths: ['M4 7h16v12H4z', 'M4 10h16', 'M16 14h.01'],
+      preview: {
+        title: 'Contoh pakai dana Lunary',
+        src: '/assets/product/lunary-usefund.mp4',
+        alt: 'Demo fitur pakai dana Lunary',
+        type: 'video',
+        mimeType: 'video/mp4',
+      },
     },
     {
       title: 'Analisis bulanan yang mudah dipahami',
       description: 'Lihat pemasukan, pengeluaran, tabungan, dan sisa pendapatan dalam satu ringkasan.',
       pro: true,
-      accent: '#b58cff',
-      soft: 'rgba(181, 140, 255, 0.12)',
+      accent: '#6686e8',
+      soft: 'rgba(102, 134, 232, 0.12)',
       paths: ['M5 4v16h15', 'M8 16v-4', 'M12 16V8', 'M16 16v-7'],
       preview: {
         title: 'Contoh analisis bulanan Lunary',
-        src: '/assets/product/lunary-monthly-analysis.png',
+        src: '/assets/product/monthly-report.png',
         alt: 'Tampilan analisis bulanan Lunary',
       },
     },
@@ -69,35 +77,47 @@
       title: 'Cicilan tetap terpantau',
       description: 'Catat pembayaran cicilan, lihat sisa kewajiban, dan ketahui jadwal pembayaran berikutnya.',
       pro: true,
-      accent: '#ff7895',
-      soft: 'rgba(255, 120, 149, 0.12)',
+      accent: '#36c4b2',
+      soft: 'rgba(54, 196, 178, 0.12)',
       paths: ['M4 7h16v12H4z', 'M4 11h16', 'M8 15h4'],
+      preview: {
+        title: 'Contoh cicilan Lunary',
+        src: '/assets/product/lunary-cicilan.png',
+        alt: 'Tampilan cicilan Lunary',
+      },
     },
     {
       title: 'Tagihan tidak lagi mendadak',
       description: 'Simpan tagihan rutin dan pantau status pembayarannya dengan lebih teratur.',
       pro: true,
-      accent: '#ff9b62',
-      soft: 'rgba(255, 155, 98, 0.12)',
+      accent: '#36c4b2',
+      soft: 'rgba(54, 196, 178, 0.12)',
       paths: ['M6 3h12v18H6z', 'M9 7h6', 'M9 11h6', 'M9 15h3'],
+      preview: {
+        title: 'Contoh tagihan Lunary',
+        src: '/assets/product/lunary-bills.png',
+        alt: 'Tampilan tagihan Lunary',
+      },
     },
     {
       title: 'Semua dompet dalam satu tempat',
       description: 'Kelola saldo bank, e-wallet, cash, dan dompet lainnya tanpa berpindah aplikasi.',
-      accent: '#4dd9a4',
-      soft: 'rgba(77, 217, 164, 0.12)',
+      accent: '#36c4b2',
+      soft: 'rgba(54, 196, 178, 0.12)',
       paths: ['M3 7h18v13H3z', 'M3 7l2-4h14l2 4', 'M16 13h.01'],
       preview: {
         title: 'Contoh dompet Lunary',
-        src: '/assets/product/lunary-wallet.png',
+        src: '/assets/product/lunary-wallet.mp4',
         alt: 'Tampilan dompet Lunary',
+        type: 'video',
+        mimeType: 'video/mp4',
       },
     },
     {
       title: 'Autocashflow lebih praktis',
       description: 'Gunakan kembali kategori dan transaksi rutin setiap bulan tanpa perlu ribet menginputnya dari awal.',
-      accent: '#72a9ff',
-      soft: 'rgba(114, 169, 255, 0.12)',
+      accent: '#6686e8',
+      soft: 'rgba(102, 134, 232, 0.12)',
       paths: ['M20 11a8 8 0 0 0-14.9-4', 'M4 4v5h5', 'M4 13a8 8 0 0 0 14.9 4', 'M20 20v-5h-5'],
       preview: {
         title: 'Contoh Auto Cashflow Lunary',
@@ -109,6 +129,26 @@
   ];
 
   let activePreview = $state<FeaturePreview | null>(null);
+  let videoEnded = $state(false);
+  let previewVideo = $state<HTMLVideoElement | undefined>(undefined);
+
+  function openPreview(preview: FeaturePreview | null) {
+    activePreview = preview;
+    videoEnded = false;
+  }
+
+  function closePreview() {
+    activePreview = null;
+    videoEnded = false;
+  }
+
+  function replayVideo() {
+    if (!previewVideo) return;
+
+    videoEnded = false;
+    previewVideo.currentTime = 0;
+    void previewVideo.play();
+  }
 </script>
 
 <section class="feature-grid-section" id="ekosistem" aria-labelledby="feature-grid-title">
@@ -143,7 +183,7 @@
             <button
               type="button"
               class="feature-card__preview"
-              onclick={() => (activePreview = feature.preview ?? null)}
+              onclick={() => openPreview(feature.preview ?? null)}
               aria-label={`Lihat contoh ${feature.title}`}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -165,14 +205,36 @@
   title={activePreview?.title ?? 'Pratinjau Lunary'}
   wide
   hideHeader
-  onclose={() => (activePreview = null)}
+  onclose={closePreview}
 >
   {#if activePreview}
     <div class="feature-preview-media">
       {#if activePreview.type === 'video'}
-        <video controls autoplay muted loop playsinline aria-label={activePreview.alt}>
-          <source src={activePreview.src} type="video/mp4" />
-        </video>
+        <div class="feature-preview-video">
+          <video
+            bind:this={previewVideo}
+            controls
+            autoplay
+            muted
+            playsinline
+            aria-label={activePreview.alt}
+            onended={() => (videoEnded = true)}
+            onplay={() => (videoEnded = false)}
+          >
+            <source src={activePreview.src} type={activePreview.mimeType ?? 'video/mp4'} />
+          </video>
+          {#if videoEnded}
+            <div class="feature-preview-replay">
+              <button type="button" onclick={replayVideo} aria-label="Ulangi video">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 12a9 9 0 1 0 3-6.7" />
+                  <path d="M3 4v5h5" />
+                </svg>
+                Ulangi video
+              </button>
+            </div>
+          {/if}
+        </div>
       {:else}
         <img src={activePreview.src} alt={activePreview.alt} />
       {/if}
@@ -182,49 +244,67 @@
 
 <style>
   .feature-grid-section {
-    max-width: 1200px;
+    max-width: 1240px;
     margin: 0 auto;
-    padding: 6rem 1.25rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 5.5rem 1.25rem 6.5rem;
+    border-top: 1px solid rgba(145, 161, 189, 0.12);
   }
 
   .feature-grid-section__intro {
-    max-width: 760px;
-    margin: 0 auto 3rem;
-    text-align: center;
+    display: grid;
+    max-width: 960px;
+    margin: 0 0 2.5rem;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 3rem;
+    align-items: end;
+    text-align: left;
   }
 
   .feature-grid-section h2 {
-    margin: 0.75rem 0 1rem;
+    margin: 0;
     color: #f8f9ff;
-    font-size: clamp(2rem, 4vw, 3.45rem);
-    line-height: 1.08;
-    letter-spacing: -0.04em;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
   }
 
   .feature-grid-section__intro p {
     margin: 0;
-    color: #91a1bd;
-    font-size: 1.05rem;
-    line-height: 1.65;
+    max-width: 34rem;
+    color: #a7b1c5;
+    font-size: 0.98rem;
+    line-height: 1.7;
   }
 
   .feature-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
   }
 
   .feature-card {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    min-height: 275px;
-    padding: 1.5rem;
-    border: 1px solid rgba(145, 161, 189, 0.16);
-    border-radius: 1rem;
-    background: linear-gradient(150deg, rgba(17, 25, 47, 0.92), rgba(9, 14, 28, 0.94));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    min-height: 245px;
+    padding: 1.35rem;
+    border: 1px solid rgba(145, 161, 189, 0.15);
+    border-radius: 0.75rem;
+    background: #10182b;
+    box-shadow: none;
+    transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .feature-card:hover {
+    border-color: color-mix(in srgb, var(--feature-accent) 52%, rgba(145, 161, 189, 0.2));
+    background: #131d33;
+    box-shadow: 0 0.7rem 1.5rem rgba(2, 6, 23, 0.2);
+    transform: translateY(-0.25rem);
+  }
+
+  .feature-card:focus-within {
+    border-color: var(--feature-accent);
+    box-shadow: 0 0 0 3px var(--feature-accent-soft);
   }
 
   .feature-card__header {
@@ -232,23 +312,22 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
   }
 
   .feature-card__icon {
     display: grid;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
     place-items: center;
-    border: 1px solid color-mix(in srgb, var(--feature-accent) 32%, transparent);
-    border-radius: 0.8rem;
-    color: var(--feature-accent);
-    background: var(--feature-accent-soft);
+    border-radius: 0.65rem;
+    color: #10182b;
+    background: var(--feature-accent);
   }
 
   .feature-card__icon svg {
-    width: 1.35rem;
-    height: 1.35rem;
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
   .feature-card__badge {
@@ -256,10 +335,10 @@
     align-items: center;
     min-height: 1.5rem;
     padding: 0.2rem 0.55rem;
-    border: 1px solid rgba(25, 211, 176, 0.3);
+    border: 0;
     border-radius: 999px;
-    color: #19d3b0;
-    background: rgba(25, 211, 176, 0.1);
+    color: #241b0a;
+    background: #efc978;
     font-size: 0.65rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -267,26 +346,26 @@
   }
 
   .feature-card h3 {
-    max-width: 16rem;
+    max-width: 19rem;
     margin: 0;
     color: #f4f6ff;
-    font-size: 1.05rem;
-    line-height: 1.3;
-    letter-spacing: -0.015em;
+    font-size: 1.02rem;
+    line-height: 1.32;
+    letter-spacing: -0.01em;
   }
 
   .feature-card p {
-    margin: 0.8rem 0 0;
+    margin: 0.7rem 0 0;
     color: #91a1bd;
-    font-size: 0.9rem;
-    line-height: 1.6;
+    font-size: 0.84rem;
+    line-height: 1.55;
   }
 
   .feature-card__footer {
     display: flex;
     align-items: flex-end;
     flex: 1;
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
   }
 
   .feature-card__preview {
@@ -295,10 +374,10 @@
     gap: 0.45rem;
     padding: 0.45rem 0;
     border: 0;
-    color: var(--feature-accent);
+    color: #b5c0d5;
     background: transparent;
     font: inherit;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 800;
     cursor: pointer;
     opacity: 1;
@@ -318,7 +397,7 @@
   }
 
   .feature-card__preview:hover {
-    color: #ffffff;
+    color: var(--feature-accent);
   }
 
   .feature-card__preview:hover span {
@@ -345,7 +424,64 @@
     object-fit: contain;
   }
 
+  .feature-preview-video {
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    max-height: 72vh;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .feature-preview-video video {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: 72vh;
+    object-fit: contain;
+  }
+
+  .feature-preview-replay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(3, 6, 15, 0.35);
+  }
+
+  .feature-preview-replay button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    padding: 0.75rem 1rem;
+    color: #ffffff;
+    background: rgba(17, 24, 39, 0.9);
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.28);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 180ms ease, background 180ms ease;
+  }
+
+  .feature-preview-replay button:hover {
+    background: rgba(124, 131, 255, 0.95);
+    transform: translateY(-0.1rem);
+  }
+
+  .feature-preview-replay svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
   @media (max-width: 1024px) {
+    .feature-grid-section__intro {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
     .feature-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -361,6 +497,10 @@
     }
 
     .feature-grid-section__intro p {
+      max-width: 30rem;
+    }
+
+    .feature-grid-section__intro p {
       font-size: 0.95rem;
     }
 
@@ -373,5 +513,15 @@
       padding: 1.35rem;
     }
 
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .feature-card {
+      transition: border-color 180ms ease, background-color 180ms ease;
+    }
+
+    .feature-card:hover {
+      transform: none;
+    }
   }
 </style>

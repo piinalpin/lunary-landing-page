@@ -4,10 +4,9 @@
 
   interface Props {
     locale: Locale;
-    onOpenDemo: () => void;
   }
 
-  let { locale, onOpenDemo }: Props = $props();
+  let { locale }: Props = $props();
 
   const copy = {
     id: {
@@ -22,7 +21,6 @@
       ],
       body: 'Catat cashflow, pantau dompet, atur target, tagihan, dan cicilan. Semua kebaca jelas, tanpa drama spreadsheet.',
       primary: 'Lihat paket',
-      demo: 'Lihat demo 2 menit',
       trust: 'Urusan uang jadi lebih kebaca, Gen Z approved.',
     },
     en: {
@@ -37,7 +35,6 @@
       ],
       body: 'Track cashflow, watch your wallets, set goals, and stay on top of bills and installments. Clear money stuff, zero spreadsheet drama.',
       primary: 'View plans',
-      demo: 'See the 2-minute demo',
       trust: 'Your money stuff, finally making sense.',
     },
   } as const;
@@ -163,8 +160,8 @@
     {c.body}
   </p>
 
-  <!-- Dual Call to Action Buttons -->
-  <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+  <!-- Primary Call to Action -->
+  <div class="flex items-center justify-center mb-12">
     <a
       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold text-white bg-brand-primary hover:bg-brand-primaryHover rounded-2xl transition-all shadow-glow-primary border border-indigo-300/30 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan"
       href="#harga"
@@ -174,16 +171,6 @@
         <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
       </svg>
     </a>
-    <button
-      type="button"
-      class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 text-base font-semibold text-slate-200 glass-panel hover:bg-white/10 rounded-2xl transition-all border border-white/10 hover:border-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
-      onclick={onOpenDemo}
-    >
-      <svg class="w-5 h-5 text-brand-cyan" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M8 5v14l11-7z"></path>
-      </svg>
-      <span>{c.demo}</span>
-    </button>
   </div>
 
   <!-- Trust Badge & Social Proof -->
