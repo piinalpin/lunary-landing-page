@@ -4,9 +4,10 @@
 
   interface Props {
     locale?: Locale;
+    onRegister: () => void;
   }
 
-  let { locale = 'id' }: Props = $props();
+  let { locale = 'id', onRegister }: Props = $props();
 
   const copy = {
     id: {
@@ -40,15 +41,16 @@
       </p>
 
       <div class="flex flex-col items-center gap-4">
-        <a
-          class="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl font-bold text-white bg-brand-primary hover:bg-brand-primaryHover transition-all shadow-glow-primary border border-indigo-300/30 text-sm cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan"
-          href={env.registerUrl}
+        <button
+          type="button"
+          onclick={onRegister}
+          class="inline-flex items-center justify-center gap-2 min-h-12 px-7 py-4 rounded-2xl font-bold text-white bg-brand-primary hover:bg-brand-primaryHover transition-all shadow-glow-primary border border-indigo-300/30 text-sm cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan"
         >
           <span>{c.cta}</span>
           <svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
           </svg>
-        </a>
+        </button>
         <a
           class="text-sm font-semibold text-slate-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan rounded-lg px-2 py-1"
           href={env.loginUrl}

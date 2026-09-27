@@ -6,11 +6,12 @@
     title?: string;
     wide?: boolean;
     hideHeader?: boolean;
+    mobileSheet?: boolean;
     onclose: () => void;
     children?: Snippet;
   }
 
-  let { isOpen, title = 'Pratinjau Lunary', wide = false, hideHeader = false, onclose, children }: Props = $props();
+  let { isOpen, title = 'Pratinjau Lunary', wide = false, hideHeader = false, mobileSheet = false, onclose, children }: Props = $props();
 
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape' && isOpen) {
@@ -23,7 +24,7 @@
 
 {#if isOpen}
   <div
-    class="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto p-4 pt-[calc(var(--landing-header-height)+1rem)]"
+    class={`fixed inset-0 z-[60] flex justify-center overflow-y-auto ${mobileSheet ? 'items-end p-0 sm:items-start sm:p-4 sm:pt-[calc(var(--landing-header-height)+1rem)]' : 'items-start p-4 pt-[calc(var(--landing-header-height)+1rem)]'}`}
     role="dialog"
     aria-modal="true"
     aria-labelledby="modal-title"
@@ -39,12 +40,12 @@
 
     <!-- Modal Container -->
     <div
-      class={`relative z-10 w-full ${wide ? 'max-w-7xl' : 'max-w-2xl'} max-h-[calc(100vh-var(--landing-header-height)-2rem)] overflow-y-auto rounded-3xl border border-white/15 bg-brand-dark p-6 sm:p-8 shadow-2xl shadow-brand-primary/20 text-slate-200`}
+      class={`relative z-10 w-full ${wide ? 'max-w-7xl' : 'max-w-2xl'} ${mobileSheet ? 'max-h-[100dvh] rounded-t-3xl rounded-b-none border-b-0 p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] sm:max-h-[calc(100vh-var(--landing-header-height)-2rem)] sm:rounded-3xl sm:border-b sm:p-8' : 'max-h-[calc(100vh-var(--landing-header-height)-2rem)] rounded-3xl p-6 sm:p-8'} overflow-y-auto border border-white/15 bg-brand-dark shadow-2xl shadow-brand-primary/20 text-slate-200`}
     >
       {#if hideHeader}
         <button
           type="button"
-          class="absolute right-5 top-5 z-10 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
+          class="absolute right-4 top-4 z-10 w-11 h-11 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
           onclick={onclose}
           aria-label="Tutup dialog"
         >
@@ -58,7 +59,7 @@
           </h3>
           <button
             type="button"
-            class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
+            class="w-11 h-11 -mr-2 -my-2 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
             onclick={onclose}
             aria-label="Tutup dialog"
           >

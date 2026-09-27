@@ -4,8 +4,7 @@
 
 export const ENDPOINTS = {
   LANDING_PAGE: '/landing-page',
-  WAITLIST: '/waitlist',
-  LEADS: '/leads',
-  HEALTH: '/health',
+  PAYMENT_METHODS: '/landing-page/payment-methods',
+  REGISTER: '/landing-page/register',
 } as const;
 

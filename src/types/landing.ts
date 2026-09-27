@@ -5,15 +5,6 @@ export interface NavItem {
   href: string;
 }
 
-export interface BentoFeature {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  colSpan?: string;
-  badge?: string;
-}
-
 export interface ComparisonRow {
   feature: string;
   spreadsheet: string;

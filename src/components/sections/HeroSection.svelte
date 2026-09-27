@@ -160,7 +160,7 @@
     {c.body}
   </p>
 
-  <!-- Primary Call to Action -->
+  <!-- Call to Action Button -->
   <div class="flex items-center justify-center mb-12">
     <a
       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold text-white bg-brand-primary hover:bg-brand-primaryHover rounded-2xl transition-all shadow-glow-primary border border-indigo-300/30 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan"

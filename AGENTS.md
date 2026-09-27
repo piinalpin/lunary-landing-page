@@ -21,28 +21,35 @@ Semua agen dan developer yang bekerja pada repositori ini **WAJIB** mematuhi atu
 - **Svelte 5 Runes Mode:** Selalu gunakan runes (`$state`, `$derived`, `$props`, snippets). Dilarang keras menggunakan sintaks warisan Svelte 4/3 seperti `export let`, pernyataan reaktif `$:` atau event listener lama `on:click` (gunakan `onclick`).
 - **Styling:** Tailwind CSS v4 (`@tailwindcss/vite`) terintegrasi dengan Design Tokens Lunary di `src/app.css` (*Cosmic Obsidian* `#070A12`, *Electric Indigo* `#4D5BFF`, *Cyber Cyan* `#06D6A0`, *glassmorphism*, dan *glow shadows*).
 - **Tipografi:** Teks UI utama menggunakan **Plus Jakarta Sans**, metrik angka/mata uang menggunakan **JetBrains Mono**.
-- **Package Manager:** Selalu gunakan **pnpm** (`pnpm install`, `pnpm dev`, `pnpm build`, `pnpm check`).
+- **Package Manager:** Selalu gunakan **pnpm** di lingkungan lokal (`pnpm install`, `pnpm dev`, `pnpm build`, `pnpm check`).
+- **Kontainerisasi & Deployment:** Multi-stage Docker build menggunakan `node:22-alpine` dengan `npm` standar pada builder stage dan `nginx:alpine` pada runner stage, diorkestrasi via `docker-compose.yaml` (mendukung routing Traefik).
 
 ### 2. Client API & Komunikasi Backend
 - **Axios Wrapper:** Seluruh request HTTP wajib melalui `apiClient` (`src/api/client.ts`) atau modul service terkait di `src/api/services/`. Dilarang memanggil `fetch()` mentah atau membuat instance Axios baru sembarangan.
 - **Konfigurasi Environment:** URL backend dan parameter konfigurasi harus diambil secara type-safe melalui `env` (`src/utils/env.ts`), didukung oleh `.env` dan `.env.example`.
-- **Integrasi Endpoint `/api/landing-page`:** Kontrak response backend menyediakan `testimonials`, `faqs`, `module_plans`, dan `plan_variants`.
+- **Integrasi Endpoint Backend:**
+  - Kontrak `/api/landing-page`: Menyediakan `testimonials`, `faqs`, `module_plans`, dan `plan_variants`.
+  - Kontrak `/api/landing-page/payment-methods`: Mengambil daftar metode pembayaran berdasarkan varian paket yang dipilih.
+  - Kontrak `/api/landing-page/register`: Mengirim transaksi pendaftaran order baru yang dilindungi oleh signature **HMAC-SHA256** via Web Crypto API (`src/utils/crypto.ts`).
 - **State Handling:** Selalu sediakan **Skeleton Loading** (`src/components/skeletons/`) saat proses fetching API, serta **Fallback Data** (`src/data/fallbackLandingData.ts`) agar aplikasi tetap berjalan sempurna dan tidak pernah blank saat backend sedang offline.
 
 ### 3. Struktur Direktori Proyek
 Struktur file harus rapi dan terisolasi sesuai tanggung jawabnya:
-- `src/api/`: Axios client wrapper, interceptors, konstanta endpoints, dan service domain.
-- `src/components/common/`: Komponen atomik / reusable (`Button.svelte`, `Modal.svelte`, `Toast.svelte`).
+- `src/api/`: Axios client wrapper, interceptors, konstanta endpoints (`endpoints.ts`), dan service domain (`landingService.ts`, `registrationService.ts`).
+- `src/components/common/`: Komponen atomik / reusable (`Modal.svelte`, `Toast.svelte`).
 - `src/components/layout/`: Tata letak global (`Navbar.svelte`, `Footer.svelte`, `AmbientGlows.svelte`).
-- `src/components/sections/`: Bagian modular landing page (Hero, DashboardPreview, Bento, Kalender, Pricing, FAQ, Testimoni, CTA).
-- `src/components/skeletons/`: Komponen skeleton shimmer untuk loading state.
-- `src/data/`: Data statis, dataset navigasi, dan fallback data.
-- `src/types/`: Definisi TypeScript (kontrak API dan view model).
-- `src/utils/`: Helper utilitas (`env.ts`, `formatters.ts`).
+- `src/components/registration/`: Komponen modal pendaftaran dan instruksi checkout pembayaran (`RegistrationModal.svelte`).
+- `src/components/sections/`: Bagian modular landing page (`HeroSection.svelte`, `RealFeatureShowcase.svelte`, `LunaryFeatureGrid.svelte`, `ComparisonTable.svelte`, `PricingSection.svelte`, `FaqSection.svelte`, `TestimonialsSection.svelte`, `FinalCtaSection.svelte`).
+- `src/components/skeletons/`: Komponen skeleton shimmer untuk loading state (`PricingSkeleton.svelte`, `TestimonialSkeleton.svelte`, `FaqSkeleton.svelte`, `PaymentMethodsSkeleton.svelte`).
+- `src/data/`: Data statis, dataset navigasi (`navigationData.ts`), dan fallback data (`fallbackLandingData.ts`).
+- `src/types/`: Definisi TypeScript untuk kontrak API (`api.ts`) dan view model (`landing.ts`).
+- `src/utils/`: Helper utilitas (`crypto.ts`, `env.ts`, `formatters.ts`).
 
 ### 4. Desain & Komponen UI (DESIGN.md & STITCH.md)
 - Ikuti panduan visual dan token warna dari `DESIGN.md` serta spesifikasi tata letak dan copywriting dari `STITCH.md`.
 - Gunakan format mata uang Rupiah standar melalui utilitas `formatRupiah` dengan font monospaced (`JetBrains Mono`).
+- **Masking Privasi Testimoni:** Seluruh nama testimoni wajib disamarkan menggunakan utilitas `maskLastName`: 1 suku kata (contoh: `Dimas` -> `D***s`), $\ge 2$ suku kata (contoh: `Dimas Prasetyo` -> `Dimas P***o`, `Sarah Annisa Putri` -> `Sarah A***i`).
+- **Penandaan Harga Terbaik:** Kartu paket Pro Yearly dengan flag `is_best_value` menampilkan pita sudut diagonal (*corner ribbon* `Harga Terbaik` / `Best Value`) dan mempertahankan badge *Paling Lengkap*.
 - Pertahankan hierarki semantik finansial: Mint Teal untuk pemasukan (*inflow*), Rose Coral untuk pengeluaran (*outflow*), dan Amber Gold untuk peringatan/tagihan.
 
 ### 5. Aturan Kualitas Antislop (Mode: DURING)
@@ -51,4 +58,3 @@ Struktur file harus rapi dan terisolasi sesuai tanggung jawabnya:
 - **R-24 & R-26 (Navigasi & Elemen Interaktif):** Dilarang membuat tombol atau link mati (*no dead controls*). Dilarang menggunakan `href="#"`. Setiap tautan harus mengarah ke section yang valid atau rute nyata.
 - **R-25 & R-32 (Aksesibilitas):** Kontras warna wajib memenuhi standar WCAG AA. Seluruh elemen interaktif dapat dioperasikan via keyboard (`Tab`, `Enter`, `Escape`), dengan indikator ring fokus yang jelas (`focus-visible:ring-2 focus-visible:ring-brand-cyan`).
 - **R-35 (Verifikasi Mandiri):** Pastikan `pnpm check` menghasilkan 0 error/warning dan `pnpm build` sukses sebelum pekerjaan dinyatakan selesai.
-

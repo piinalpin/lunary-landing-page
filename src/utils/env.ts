@@ -7,8 +7,11 @@ export const env = {
   apiTimeout: Number(import.meta.env.VITE_API_TIMEOUT) || 10000,
   appName: import.meta.env.VITE_APP_NAME || 'Lunary',
   loginUrl: import.meta.env.VITE_APP_LOGIN_URL || 'http://localhost:8000/login',
-  registerUrl: import.meta.env.VITE_APP_REGISTER_URL || 'http://localhost:8000/register',
-  demoUrl: import.meta.env.VITE_APP_DEMO_URL || 'http://localhost:8000/demo',
+  landingPageSecret: import.meta.env.VITE_LANDING_PAGE_SECRET || '',
+  reverbAppKey: import.meta.env.VITE_REVERB_APP_KEY || '',
+  reverbHost: import.meta.env.VITE_REVERB_HOST || '',
+  reverbPort: Number(import.meta.env.VITE_REVERB_PORT) || 443,
+  reverbScheme: import.meta.env.VITE_REVERB_SCHEME || 'https',
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
 };

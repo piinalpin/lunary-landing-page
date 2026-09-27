@@ -1,5 +1,5 @@
 import type { TestimonialItem, FaqItem, ModulePlanItem, PlanVariantItem } from '@/types/api';
-import type { BentoFeature, ComparisonRow } from '@/types/landing';
+import type { ComparisonRow } from '@/types/landing';
 
 export const FALLBACK_TESTIMONIALS: TestimonialItem[] = [
   {
@@ -179,35 +179,6 @@ export const FALLBACK_PLAN_VARIANTS: PlanVariantItem[] = [
       id: '9f67a8a7-e248-4d5e-8fee-77cd622143b0',
       name: 'Pro',
     },
-  },
-];
-
-export const BENTO_FEATURES: BentoFeature[] = [
-  {
-    id: 'multi-wallet',
-    title: 'Multi-Dompet Terintegrasi',
-    description: 'Pantau saldo rekening bank (BCA, Mandiri), e-wallet (GoPay, OVO), kas tunai, hingga portofolio investasi dalam satu ringkasan terkonsolidasi secara real-time.',
-    icon: '🏦',
-    colSpan: 'md:col-span-2',
-  },
-  {
-    id: 'budgeting',
-    title: 'Envelope Budgeting & Kontrol Belanja',
-    description: 'Tentukan batas pengeluaran per kategori (Makanan, Transportasi, Hiburan). Indikator warna dinamis memberi peringatan sebelum anggaranmu bocor.',
-    icon: '✉️',
-  },
-  {
-    id: 'talangan',
-    title: 'Investasi, Tabungan & Dana Talangan',
-    description: 'Pisahkan tabungan pos masa depan dengan fitur unik Dana Talangan: catat pinjaman sementara dari tabungan lengkap dengan jadwal pelunasan otomatis.',
-    icon: '🎯',
-  },
-  {
-    id: 'bills',
-    title: 'Radar Tagihan Rutin & Pengelola Cicilan',
-    description: 'Lacak jatuh tempo tagihan bulanan (listrik, wifi, asuransi) serta hitung otomatis sisa tenor cicilan tanpa pernah terkena denda keterlambatan.',
-    icon: '⏰',
-    colSpan: 'md:col-span-2',
   },
 ];
 

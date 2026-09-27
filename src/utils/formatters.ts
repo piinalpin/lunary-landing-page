@@ -16,19 +16,6 @@ export function formatRupiah(amount: number, options?: { showZeroDecimal?: boole
   return formatted.replace(/\s+/g, ' ');
 }
 
-export function formatShortRupiah(amount: number): string {
-  if (amount >= 1_000_000_000) {
-    return `Rp ${(amount / 1_000_000_000).toFixed(1).replace('.', ',')}M`;
-  }
-  if (amount >= 1_000_000) {
-    return `Rp ${(amount / 1_000_000).toFixed(1).replace('.', ',')}Jt`;
-  }
-  if (amount >= 1_000) {
-    return `Rp ${(amount / 1_000).toFixed(0)}rb`;
-  }
-  return formatRupiah(amount);
-}
-
 /**
  * Masks a person's name for privacy.
  * - If 1 word: firstChar***lastChar, e.g. "Dimas" -> "D***s"

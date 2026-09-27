@@ -62,12 +62,61 @@ export interface LandingPageApiResponse {
   plan_variants: PlanVariantItem[];
 }
 
-export interface LeadSubmissionPayload {
-  email: string;
-  source?: string;
+export interface PaymentMethodItem {
+  paymentMethod: string;
+  paymentName: string;
+  paymentImage: string;
+  totalFee: number | string;
 }
 
-export interface LeadSubmissionResponse {
-  success: boolean;
+export interface PaymentMethodsResponse {
+  status: string;
+  data: {
+    variant: PlanVariantItem;
+    payment_methods: PaymentMethodItem[];
+  };
+}
+
+export interface RegisterOrderPayload {
+  name: string;
+  email: string;
+  phone: string;
+  plan_variant_id: string;
+  payment_method: string;
+  payment_name: string;
+  fee: number;
+}
+
+export interface PaymentDetails {
+  reference_code: string;
+  payment_method: string;
+  payment_name: string;
+  payment_code?: string;
+  payment_url?: string;
+  amount: number;
+  fee: number;
+  total_amount: number;
+  status: string;
+}
+
+export interface OrderDetails {
+  id: string;
+  invoice_number: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+  plan: { id: string | number; name?: string };
+  variant: { id: string | number; name?: string; billing_cycle?: string };
+  payment: PaymentDetails;
+}
+
+export interface RegisterOrderResponse {
+  status: string;
   message: string;
+  data: {
+    payment_url?: string;
+    landing_payment_channel: string;
+    order: OrderDetails;
+  };
 }
