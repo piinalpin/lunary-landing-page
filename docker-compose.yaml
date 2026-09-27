@@ -15,6 +15,10 @@ services:
         VITE_APP_NAME: ${VITE_APP_NAME:-Lunary}
         VITE_APP_LOGIN_URL: ${VITE_APP_LOGIN_URL:-http://localhost:8000/login}
         VITE_LANDING_PAGE_SECRET: ${VITE_LANDING_PAGE_SECRET:-lunary_landing_secret_2026_super_secure_key}
+        VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY:-}
+        VITE_REVERB_HOST: ${VITE_REVERB_HOST:-}
+        VITE_REVERB_PORT: ${VITE_REVERB_PORT:-443}
+        VITE_REVERB_SCHEME: ${VITE_REVERB_SCHEME:-https}
     container_name: lunary-landing-page
     image: ryujinlabs/lunary-landing-page:${BUILD_VERSION:-latest}
     restart: unless-stopped

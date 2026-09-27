@@ -116,6 +116,7 @@ export interface RegisterOrderResponse {
   message: string;
   data: {
     payment_url?: string;
+    landing_payment_channel: string;
     order: OrderDetails;
   };
 }

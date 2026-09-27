@@ -1,12 +1,14 @@
 <script lang="ts">
   import axios from 'axios';
+  import Echo from 'laravel-echo';
+  import Pusher from 'pusher-js';
   import Modal from '@/components/common/Modal.svelte';
   import PaymentMethodsSkeleton from '@/components/skeletons/PaymentMethodsSkeleton.svelte';
   import { registrationService } from '@/api/services/registrationService';
   import { apiClient } from '@/api/client';
   import { env } from '@/utils/env';
   import { formatRupiah } from '@/utils/formatters';
-  import type { OrderDetails, PaymentMethodItem, PlanVariantItem } from '@/types/api';
+  import type { PaymentMethodItem, PlanVariantItem } from '@/types/api';
   import type { Locale } from '@/types/landing';
 
   interface Props {
@@ -19,10 +21,13 @@
 
   let { isOpen, variant, planName = '', locale = 'id', onclose }: Props = $props();
 
-  type Step = 'checkout' | 'payment';
-  type SubmitErrorKind = 'email' | 'signature' | 'generic';
+  (window as unknown as Window & { Pusher: typeof Pusher }).Pusher = Pusher;
 
-  let step = $state<Step>('checkout');
+  type Step = 'details' | 'method' | 'payment';
+  type PaymentGroup = 'va' | 'qris' | 'wallet' | 'other';
+  type SubmitErrorKind = 'email' | 'signature' | 'popup' | 'generic';
+
+  let step = $state<Step>('details');
   let name = $state('');
   let email = $state('');
   let phone = $state('');
@@ -31,17 +36,17 @@
   let methodsLoading = $state(false);
   let methodsError = $state('');
   let selectedMethodKey = $state('');
+  let activeMethodGroup = $state<PaymentGroup>('va');
   let submitting = $state(false);
   let submitError = $state<{ kind: SubmitErrorKind; message: string } | null>(null);
-  let order = $state<OrderDetails | null>(null);
-  let paymentUrl = $state('');
-  let copyState = $state<{ key: string; ok: boolean } | null>(null);
+  let paymentChannel = $state('');
+  let paymentStatus = $state<'waiting' | 'successful'>('waiting');
   let loadSeq = 0;
 
   const copy = {
     id: {
       modalTitle: 'Langganan',
-      paymentTitle: 'Instruksi Pembayaran',
+      paymentTitle: 'Status Pembayaran',
       packageLabel: 'Paket dipilih',
       cycleMonthly: 'Tagihan bulanan',
       cycleYearly: 'Tagihan tahunan',
@@ -60,7 +65,8 @@
       payHint: 'Biaya admin mengikuti kebijakan kanal pembayaran.',
       errPayment: 'Pilih salah satu metode pembayaran.',
       groupVa: 'Virtual Account',
-      groupWallet: 'E-Wallet & QRIS',
+      groupQris: 'QRIS',
+      groupWallet: 'E-Wallet',
       groupOther: 'Metode Lain',
       freeFee: 'Gratis',
       feePlaceholder: 'Pilih metode dulu',
@@ -68,6 +74,11 @@
       feeRow: 'Biaya admin',
       totalRow: 'Total Pembayaran',
       submit: 'Lanjut ke Pembayaran',
+      continue: 'Pilih Metode Pembayaran',
+      back: 'Kembali',
+      stepDetails: 'Data Diri',
+      stepPayment: 'Pembayaran',
+      chooseMethod: 'Pilih metode pembayaran',
       submitting: 'Memproses...',
       loadingMethods: 'Memuat metode pembayaran...',
       methodsError: 'Daftar metode pembayaran gagal dimuat.',
@@ -77,21 +88,16 @@
       loginCta: 'Masuk ke Akun Anda',
       signatureHint: 'Pastikan waktu di perangkat Anda tersinkron otomatis, lalu coba lagi. Masih gagal? Hubungi dukungan Lunary.',
       errGeneric: 'Pendaftaran gagal diproses. Coba beberapa saat lagi.',
+      popupBlocked: 'Izinkan pop-up untuk membuka halaman pembayaran.',
       waitingPayment: 'Menunggu Pembayaran',
-      invoiceLabel: 'Nomor Invoice',
-      methodLabel: 'Metode',
-      vaLabel: 'Nomor Virtual Account',
-      totalTransfer: 'Total Transfer',
-      copy: 'Salin',
-      copied: 'Tersalin!',
-      copyFail: 'Gagal salin',
-      openPayment: 'Buka Halaman Pembayaran',
-      paymentGuide: 'Setelah pembayaran diverifikasi, akun Lunary Anda aktif otomatis. Kredensial dan link aktivasi dikirim ke email Anda.',
+      waitingPaymentDetail: 'Kami sedang menunggu konfirmasi dari penyedia pembayaran.',
+      paymentSuccessful: 'Pembayaran Berhasil',
+      paymentSuccessfulDetail: 'Pembayaran Anda telah terkonfirmasi.',
       done: 'Selesai',
     },
     en: {
       modalTitle: 'Subscription',
-      paymentTitle: 'Payment Instructions',
+      paymentTitle: 'Payment Status',
       packageLabel: 'Selected plan',
       cycleMonthly: 'Monthly billing',
       cycleYearly: 'Yearly billing',
@@ -110,7 +116,8 @@
       payHint: 'Admin fees follow each payment channel policy.',
       errPayment: 'Choose one payment method.',
       groupVa: 'Virtual Account',
-      groupWallet: 'E-Wallet & QRIS',
+      groupQris: 'QRIS',
+      groupWallet: 'E-Wallet',
       groupOther: 'Other Methods',
       freeFee: 'Free',
       feePlaceholder: 'Pick a method first',
@@ -118,6 +125,11 @@
       feeRow: 'Admin fee',
       totalRow: 'Total Payment',
       submit: 'Continue to Payment',
+      continue: 'Choose a Payment Method',
+      back: 'Back',
+      stepDetails: 'Your Details',
+      stepPayment: 'Payment',
+      chooseMethod: 'Choose a payment method',
       submitting: 'Processing...',
       loadingMethods: 'Loading payment methods...',
       methodsError: 'Payment methods failed to load.',
@@ -127,22 +139,18 @@
       loginCta: 'Sign In to Your Account',
       signatureHint: 'Make sure your device time syncs automatically, then try again. Still failing? Contact Lunary support.',
       errGeneric: 'Registration could not be processed. Please try again shortly.',
+      popupBlocked: 'Allow pop-ups to open the payment page.',
       waitingPayment: 'Awaiting Payment',
-      invoiceLabel: 'Invoice Number',
-      methodLabel: 'Method',
-      vaLabel: 'Virtual Account Number',
-      totalTransfer: 'Total Transfer',
-      copy: 'Copy',
-      copied: 'Copied!',
-      copyFail: 'Copy failed',
-      openPayment: 'Open Payment Page',
-      paymentGuide: 'Once payment is verified, your Lunary account activates automatically. Credentials and the activation link are sent to your email.',
+      waitingPaymentDetail: 'We are waiting for confirmation from the payment provider.',
+      paymentSuccessful: 'Payment Successful',
+      paymentSuccessfulDetail: 'Your payment has been confirmed.',
       done: 'Done',
     },
   } as const;
 
   const VA_PATTERN = /(bca|mandiri|bri|bni|permata|cimb|maybank|bsi)/i;
-  const WALLET_PATTERN = /(qris|shopeepay|dana|ovo|linkaja)/i;
+  const QRIS_PATTERN = /qris/i;
+  const WALLET_PATTERN = /(shopeepay|dana|ovo|linkaja)/i;
 
   const c = $derived(copy[locale]);
   const planTitle = $derived(planName || variant?.plan?.name || variant?.name || '');
@@ -164,19 +172,59 @@
   const total = $derived(basePrice + fee);
   const methodGroups = $derived.by(() => {
     const va: PaymentMethodItem[] = [];
+    const qris: PaymentMethodItem[] = [];
     const wallet: PaymentMethodItem[] = [];
     const other: PaymentMethodItem[] = [];
     for (const m of methods) {
       const label = `${m.paymentMethod} ${m.paymentName}`;
       if (VA_PATTERN.test(label)) va.push(m);
+      else if (QRIS_PATTERN.test(label)) qris.push(m);
       else if (WALLET_PATTERN.test(label)) wallet.push(m);
       else other.push(m);
     }
-    return { va, wallet, other };
+    return { va, qris, wallet, other };
   });
+  const paymentGroupTabs = $derived([
+    { id: 'va' as const, label: c.groupVa, methods: methodGroups.va },
+    { id: 'qris' as const, label: c.groupQris, methods: methodGroups.qris },
+    { id: 'wallet' as const, label: c.groupWallet, methods: methodGroups.wallet },
+    { id: 'other' as const, label: c.groupOther, methods: methodGroups.other },
+  ].filter((group) => group.methods.length > 0));
+  const visiblePaymentMethods = $derived(methodGroups[activeMethodGroup]);
   const modalTitle = $derived(
-    step === 'checkout' ? `${c.modalTitle}: ${planTitle}` : c.paymentTitle
+    step === 'payment' ? c.paymentTitle : `${c.modalTitle}: ${planTitle}`
   );
+
+  $effect(() => {
+    const channel = paymentChannel;
+    if (!channel || !env.reverbAppKey || !env.reverbHost) return;
+
+    const echo = new Echo({
+      broadcaster: 'reverb',
+      key: env.reverbAppKey,
+      wsHost: env.reverbHost,
+      wsPort: env.reverbPort,
+      wssPort: env.reverbPort,
+      forceTLS: env.reverbScheme === 'https',
+      enabledTransports: ['ws', 'wss'],
+    });
+    let connectionClosed = false;
+
+    echo.channel(channel).listen('.payment.successful', () => {
+      paymentStatus = 'successful';
+      echo.leaveChannel(channel);
+      echo.disconnect();
+      connectionClosed = true;
+      paymentChannel = '';
+    });
+
+    return () => {
+      if (!connectionClosed) {
+        echo.leaveChannel(channel);
+        echo.disconnect();
+      }
+    };
+  });
 
   async function loadMethods(variantId: string) {
     const seq = ++loadSeq;
@@ -187,6 +235,13 @@
       const res = await registrationService.getPaymentMethods(variantId);
       if (seq !== loadSeq) return;
       methods = res.data?.payment_methods ?? [];
+      activeMethodGroup = methods.some((method) => VA_PATTERN.test(`${method.paymentMethod} ${method.paymentName}`))
+        ? 'va'
+        : methods.some((method) => QRIS_PATTERN.test(`${method.paymentMethod} ${method.paymentName}`))
+          ? 'qris'
+          : methods.some((method) => WALLET_PATTERN.test(`${method.paymentMethod} ${method.paymentName}`))
+            ? 'wallet'
+            : 'other';
     } catch (err) {
       if (seq !== loadSeq) return;
       methodsError = apiClient.formatError(err);
@@ -197,29 +252,45 @@
 
   $effect(() => {
     if (isOpen && variant) {
-      step = 'checkout';
+      step = 'details';
       name = '';
       email = '';
       phone = '';
       fieldErrors = {};
       selectedMethodKey = '';
+      activeMethodGroup = 'va';
       submitError = null;
-      order = null;
-      paymentUrl = '';
-      copyState = null;
+      paymentChannel = '';
+      paymentStatus = 'waiting';
       void loadMethods(String(variant.id));
     }
   });
 
-  function validate(): boolean {
+  function validateDetails(): boolean {
     const errs: Record<string, string> = {};
     if (name.trim().length < 2) errs.name = c.errName;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) errs.email = c.errEmail;
     const digits = phone.replace(/\D/g, '');
     if (digits.length < 9 || digits.length > 15) errs.phone = c.errPhone;
-    if (!selectedMethod) errs.payment = c.errPayment;
     fieldErrors = errs;
     return Object.keys(errs).length === 0;
+  }
+
+  function validatePaymentMethod(): boolean {
+    fieldErrors = selectedMethod ? {} : { payment: c.errPayment };
+    return Boolean(selectedMethod);
+  }
+
+  function continueToPaymentMethods() {
+    if (!validateDetails()) return;
+    submitError = null;
+    step = 'method';
+  }
+
+  function returnToDetails() {
+    fieldErrors = {};
+    submitError = null;
+    step = 'details';
   }
 
   function classifyError(err: unknown): { kind: SubmitErrorKind; message: string } {
@@ -246,9 +317,16 @@
 
   async function handleSubmit() {
     if (submitting || !variant) return;
-    if (!validate()) return;
+    if (!validatePaymentMethod()) return;
     const method = selectedMethod;
     if (!method) return;
+    const paymentWindow = window.open('about:blank', '_blank');
+    if (!paymentWindow) {
+      submitError = { kind: 'popup', message: c.popupBlocked };
+      return;
+    }
+    paymentWindow.opener = null;
+
     submitting = true;
     submitError = null;
     try {
@@ -261,57 +339,30 @@
         payment_name: method.paymentName,
         fee,
       });
-      order = res.data.order;
-      paymentUrl = res.data.payment_url ?? res.data.order?.payment?.payment_url ?? '';
-      copyState = null;
+      const paymentUrl = res.data.payment_url ?? res.data.order?.payment?.payment_url ?? '';
+      if (!paymentUrl) throw new Error('Payment URL is unavailable.');
+
+      paymentChannel = res.data.landing_payment_channel;
+      paymentStatus = 'waiting';
       step = 'payment';
+      paymentWindow.location.replace(paymentUrl);
     } catch (err) {
+      paymentWindow.close();
       submitError = classifyError(err);
     } finally {
       submitting = false;
     }
   }
 
-  async function writeClipboard(value: string): Promise<boolean> {
-    try {
-      await navigator.clipboard.writeText(value);
-      return true;
-    } catch {
-      try {
-        const area = document.createElement('textarea');
-        area.value = value;
-        area.style.position = 'fixed';
-        area.style.opacity = '0';
-        document.body.appendChild(area);
-        area.select();
-        const ok = document.execCommand('copy');
-        area.remove();
-        return ok;
-      } catch {
-        return false;
-      }
-    }
-  }
-
-  async function handleCopy(key: string, value: string) {
-    const ok = await writeClipboard(value);
-    copyState = { key, ok };
-    if (ok) {
-      setTimeout(() => {
-        if (copyState?.key === key && copyState.ok) copyState = null;
-      }, 2000);
-    }
-  }
-
-  function copyLabel(key: string): string {
-    if (copyState?.key !== key) return c.copy;
-    return copyState.ok ? c.copied : c.copyFail;
+  function closeModal() {
+    paymentChannel = '';
+    onclose();
   }
 </script>
 
 {#snippet methodOption(m: PaymentMethodItem)}
   <label
-    class="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-2.5 transition-all {selectedMethodKey ===
+    class="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-2 py-2 transition-all sm:min-h-12 sm:gap-3 sm:px-3.5 sm:py-2.5 {selectedMethodKey ===
     m.paymentMethod
       ? 'border-brand-primary bg-brand-primary/10 ring-1 ring-brand-primary/40'
       : 'border-white/10 bg-brand-surface/60 hover:border-white/25'}"
@@ -324,10 +375,10 @@
       class="h-4 w-4 shrink-0 accent-[#4D5BFF] focus-visible:ring-2 focus-visible:ring-brand-cyan"
     />
     {#if m.paymentImage}
-      <img src={m.paymentImage} alt="" loading="lazy" class="h-6 w-10 shrink-0 object-contain" />
+      <img src={m.paymentImage} alt="" loading="lazy" class="h-5 w-7 shrink-0 object-contain sm:h-6 sm:w-10" />
     {/if}
-    <span class="min-w-0 flex-1 truncate text-sm font-bold text-slate-200">{m.paymentName}</span>
-    <span class="shrink-0 text-xs font-bold {Number(m.totalFee) > 0 ? 'text-slate-300' : 'text-brand-cyan'}">
+    <span class="min-w-0 flex-1 whitespace-normal break-words text-xs font-bold leading-tight text-slate-200 sm:text-sm">{m.paymentName}</span>
+    <span class="shrink-0 whitespace-nowrap text-[10px] font-bold sm:text-xs {Number(m.totalFee) > 0 ? 'text-slate-300' : 'text-brand-cyan'}">
       {Number(m.totalFee) > 0 ? formatRupiah(Number(m.totalFee)) : c.freeFee}
     </span>
   </label>
@@ -337,11 +388,16 @@
   <p id="{id}-error" class="mt-1.5 text-xs font-semibold text-rose-300">{message}</p>
 {/snippet}
 
-<Modal isOpen={isOpen} title={modalTitle} {onclose}>
-  {#if step === 'checkout'}
-    <div class="space-y-5">
+<Modal isOpen={isOpen} title={modalTitle} mobileSheet onclose={closeModal}>
+  {#if step === 'details'}
+    <div class="space-y-4">
+      <div class="flex items-center gap-3 text-xs font-bold">
+        <span class="text-brand-cyan">01 <span class="text-slate-200">{c.stepDetails}</span></span>
+        <span class="h-px flex-1 bg-white/10"></span>
+        <span class="text-slate-500">02 {c.stepPayment}</span>
+      </div>
       <!-- Selected package summary -->
-      <div class="rounded-2xl border border-white/10 bg-brand-surface/70 p-4 sm:p-5">
+      <div class="rounded-xl border border-white/10 bg-brand-surface/70 px-4 py-3">
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div class="min-w-0">
             <p class="text-[10px] font-black uppercase tracking-[0.18em] text-brand-cyan">
@@ -365,7 +421,7 @@
       </div>
 
       <!-- Registration form -->
-      <div class="space-y-4">
+      <div class="space-y-3">
         <div>
           <label for="reg-name" class="mb-1.5 block text-xs font-bold text-slate-300">
             {c.nameLabel}
@@ -432,7 +488,24 @@
         </div>
       </div>
 
-      <!-- Payment channel picker -->
+      <button
+        type="button"
+        onclick={continueToPaymentMethods}
+        class="flex min-h-12 w-full items-center justify-center rounded-xl border border-indigo-300/30 bg-brand-primary px-5 py-3 text-sm font-black text-white shadow-glow-primary transition-colors hover:bg-brand-primaryHover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
+      >
+        {c.continue}
+      </button>
+    </div>
+  {:else if step === 'method'}
+    <div class="space-y-4">
+      <div class="flex items-center gap-3 text-xs font-bold">
+        <button type="button" onclick={returnToDetails} class="text-brand-cyan hover:text-white">
+          01 <span class="text-slate-300">{c.stepDetails}</span>
+        </button>
+        <span class="h-px flex-1 bg-brand-cyan/40"></span>
+        <span class="text-brand-cyan">02 <span class="text-slate-200">{c.stepPayment}</span></span>
+      </div>
+
       <fieldset class="space-y-3">
         <legend class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-slate-400">
           {c.payTitle}
@@ -466,42 +539,26 @@
             </button>
           </div>
         {:else}
-          {#if methodGroups.va.length > 0}
-            <div>
-              <p class="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                {c.groupVa}
-              </p>
-              <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {#each methodGroups.va as m (m.paymentMethod)}
-                  {@render methodOption(m)}
-                {/each}
-              </div>
-            </div>
-          {/if}
-          {#if methodGroups.wallet.length > 0}
-            <div>
-              <p class="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                {c.groupWallet}
-              </p>
-              <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {#each methodGroups.wallet as m (m.paymentMethod)}
-                  {@render methodOption(m)}
-                {/each}
-              </div>
-            </div>
-          {/if}
-          {#if methodGroups.other.length > 0}
-            <div>
-              <p class="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                {c.groupOther}
-              </p>
-              <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {#each methodGroups.other as m (m.paymentMethod)}
-                  {@render methodOption(m)}
-                {/each}
-              </div>
-            </div>
-          {/if}
+          <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
+            {#each paymentGroupTabs as group (group.id)}
+              <button
+                type="button"
+                aria-pressed={activeMethodGroup === group.id}
+                onclick={() => (activeMethodGroup = group.id)}
+                class="min-h-10 rounded-lg border px-2 text-left text-[10px] font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan sm:px-3 sm:text-xs {activeMethodGroup === group.id
+                  ? 'border-brand-cyan/40 bg-brand-cyan/10 text-brand-cyan'
+                  : 'border-white/10 bg-brand-surface/60 text-slate-400 hover:text-white'}"
+              >
+                {group.label}
+                <span class="ml-1 text-[10px] opacity-70">{group.methods.length}</span>
+              </button>
+            {/each}
+          </div>
+          <div class="grid grid-cols-2 gap-1.5 sm:gap-2">
+            {#each visiblePaymentMethods as method (method.paymentMethod)}
+              {@render methodOption(method)}
+            {/each}
+          </div>
           {#if fieldErrors.payment}
             <p class="text-xs font-semibold text-rose-300">{fieldErrors.payment}</p>
           {/if}
@@ -509,7 +566,7 @@
       </fieldset>
 
       <!-- Billing summary -->
-      <div class="space-y-2 rounded-2xl border border-white/10 bg-brand-surface/70 p-4">
+      <div class="space-y-2 rounded-xl border border-white/10 bg-brand-surface/70 p-3">
         <div class="flex items-center justify-between gap-3 text-sm">
           <span class="text-slate-400">{c.priceRow}</span>
           <span class="font-bold text-slate-300 font-mono">{formatRupiah(basePrice)}</span>
@@ -558,101 +615,66 @@
         </div>
       {/if}
 
-      <button
-        type="button"
-        onclick={handleSubmit}
-        disabled={submitting}
-        class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-indigo-300/30 bg-brand-primary px-6 py-4 text-sm font-black text-white shadow-glow-primary transition-all hover:bg-brand-primaryHover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-      >
-        {#if submitting}
-          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle>
-            <path d="M4 12a8 8 0 0 1 8-8" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
-          </svg>
-          {c.submitting}
-        {:else}
-          {c.submit}
-        {/if}
-      </button>
-    </div>
-  {:else if step === 'payment' && order}
-    <div class="space-y-4">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div class="min-w-0">
-          <p class="text-[10px] font-black uppercase tracking-[0.18em] text-brand-cyan">
-            {c.invoiceLabel}
-          </p>
-          <p class="mt-1 break-all font-mono text-sm font-bold text-white">
-            {order.invoice_number}
-          </p>
-        </div>
-        <span class="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-[11px] font-black uppercase text-amber-300">
-          <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" aria-hidden="true"></span>
-          {c.waitingPayment}
-        </span>
-      </div>
-
-      <p class="text-xs font-bold text-slate-400">
-        {c.methodLabel}: <span class="text-slate-200">{order.payment.payment_name}</span>
-      </p>
-
-      {#if order.payment.payment_code}
-        <div class="rounded-2xl border border-white/10 bg-brand-surface/70 p-4">
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">
-            {c.vaLabel}
-          </p>
-          <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
-            <span class="min-w-0 break-all font-mono text-base font-black text-white sm:text-lg">
-              {order.payment.payment_code}
-            </span>
-            <button
-              type="button"
-              onclick={() => handleCopy('va', order?.payment.payment_code ?? '')}
-              class="min-h-11 shrink-0 rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 px-4 py-2.5 text-xs font-black text-brand-cyan hover:bg-brand-cyan/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
-            >
-              {copyLabel('va')}
-            </button>
-          </div>
-        </div>
-      {/if}
-
-      <div class="rounded-2xl border border-white/10 bg-brand-surface/70 p-4">
-        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">
-          {c.totalTransfer}
-        </p>
-        <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
-          <span class="font-mono text-base font-black text-white sm:text-lg">
-            {formatRupiah(order.payment.total_amount)}
-          </span>
-          <button
-            type="button"
-            onclick={() => handleCopy('total', String(order?.payment.total_amount ?? ''))}
-            class="min-h-11 shrink-0 rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 px-4 py-2.5 text-xs font-black text-brand-cyan hover:bg-brand-cyan/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
-          >
-            {copyLabel('total')}
-          </button>
-        </div>
-      </div>
-
-      {#if paymentUrl}
-        <a
-          href={paymentUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="flex min-h-12 w-full items-center justify-center rounded-xl border border-indigo-300/30 bg-brand-primary px-6 py-4 text-sm font-black text-white shadow-glow-primary transition-all hover:bg-brand-primaryHover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan"
+      <div class="grid grid-cols-[auto_1fr] gap-2">
+        <button
+          type="button"
+          onclick={returnToDetails}
+          class="min-h-12 rounded-xl border border-white/15 bg-slate-800 px-4 text-sm font-bold text-white hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
         >
-          {c.openPayment}
-        </a>
-      {/if}
-
-      <div class="rounded-xl border border-brand-cyan/20 bg-brand-cyan/5 p-4">
-        <p class="text-xs font-semibold leading-relaxed text-slate-300">{c.paymentGuide}</p>
+          {c.back}
+        </button>
+        <button
+          type="button"
+          onclick={handleSubmit}
+          disabled={submitting || methodsLoading || methods.length === 0}
+          class="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-indigo-300/30 bg-brand-primary px-4 text-sm font-black text-white shadow-glow-primary transition-all hover:bg-brand-primaryHover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+        >
+          {#if submitting}
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle>
+              <path d="M4 12a8 8 0 0 1 8-8" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            </svg>
+            {c.submitting}
+          {:else}
+            {c.submit}
+          {/if}
+        </button>
       </div>
-
+    </div>
+  {:else if step === 'payment'}
+    <div class="flex flex-col items-center px-2 py-3 text-center sm:py-5">
+      {#if paymentStatus === 'successful'}
+        <div
+          class="mb-5 grid size-16 place-items-center rounded-full border border-brand-cyan/30 bg-brand-cyan/10 text-brand-cyan"
+          aria-hidden="true"
+        >
+          <span class="block size-3 -translate-y-0.5 rotate-45 border-b-[3px] border-r-[3px] border-current"></span>
+        </div>
+      {:else}
+        <div
+          class="relative mb-5 grid size-16 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10"
+          aria-hidden="true"
+        >
+          <span class="absolute inset-1 rounded-full border border-amber-300/15 motion-safe:animate-pulse"></span>
+          <span class="size-8 rounded-full border-[3px] border-amber-300/25 border-t-amber-300 motion-safe:animate-spin motion-reduce:animate-none"></span>
+        </div>
+      {/if}
+      <div role="status" aria-live="polite">
+        <h4
+          class="text-xl font-black {paymentStatus === 'successful' ? 'text-brand-cyan' : 'text-amber-300'}"
+        >
+          {paymentStatus === 'successful' ? c.paymentSuccessful : c.waitingPayment}
+        </h4>
+        <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-400">
+          {paymentStatus === 'successful' ? c.paymentSuccessfulDetail : c.waitingPaymentDetail}
+        </p>
+      </div>
       <button
         type="button"
-        onclick={onclose}
-        class="flex min-h-12 w-full items-center justify-center rounded-xl border border-white/15 bg-slate-800 px-6 py-3.5 text-sm font-black text-white transition-colors hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer"
+        onclick={closeModal}
+        class="mt-7 flex min-h-12 w-full items-center justify-center rounded-xl border px-6 py-3.5 text-sm font-black transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan cursor-pointer {paymentStatus === 'successful'
+          ? 'border-brand-cyan/35 bg-brand-cyan/10 text-brand-cyan hover:bg-brand-cyan/15'
+          : 'border-white/15 bg-slate-800 text-white hover:bg-slate-700'}"
       >
         {c.done}
       </button>
