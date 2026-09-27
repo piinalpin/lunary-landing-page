@@ -77,7 +77,7 @@
         <article class="comparison-card">
           <div class="comparison-body">
             <div class="old-method">
-              <span class="method-icon" aria-hidden="true">
+              <span class={`method-icon method-icon--${comparison.icon}`} aria-hidden="true">
                 {#if comparison.icon === 'grid'}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg>
                 {:else if comparison.icon === 'note'}
@@ -147,10 +147,13 @@
     align-items: center;
     justify-content: center;
     border-radius: 0.5rem;
-    background: rgb(99 102 241 / 0.12);
-    color: #a5b4fc;
+    color: #10182b;
+    background: #8875f2;
     margin: 0 auto;
   }
+
+  .method-icon--note { background: #36c4b2; }
+  .method-icon--app { background: #6686e8; }
 
   .method-icon svg { width: 1.25rem; height: 1.25rem; }
 
