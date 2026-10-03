@@ -6,8 +6,8 @@
   let { locale = 'id' }: { locale?: Locale } = $props();
 
   const copy = {
-    id: { tagline: 'Duit kekontrol, hidup gak gampang jompo.', contact: 'Hubungi kami', products: 'Produk', legal: 'Legalitas', copyright: 'Hak cipta dilindungi.' },
-    en: { tagline: 'Money under control, life feels lighter.', contact: 'Contact us', products: 'Product', legal: 'Legal', copyright: 'All rights reserved.' },
+    id: { tagline: 'Duit kekontrol, hidup gak gampang jompo.', contact: 'Hubungi kami', products: 'Produk', copyright: 'Hak cipta dilindungi.' },
+    en: { tagline: 'Money under control, life feels lighter.', contact: 'Contact us', products: 'Product', copyright: 'All rights reserved.' },
   } as const;
 
   const c = $derived(copy[locale]);
@@ -15,9 +15,9 @@
 
 <footer class="border-t border-white/10 bg-brand-dark pt-16 pb-12 text-sm text-slate-400 relative z-10">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 pb-12">
+    <div class="grid grid-cols-2 md:grid-cols-2 gap-8 pb-12">
       <!-- Brand column -->
-      <div class="col-span-2 space-y-4">
+      <div class="col-span-2 md:col-span-1 space-y-4">
         <a class="flex items-center gap-3" href="/" aria-label="Kembali ke atas">
           <img class="w-8 h-8 rounded-lg" src="/assets/lunary-icon.png" alt="" />
           <span class="text-xl font-bold text-white tracking-tight">{env.appName}</span>
@@ -34,7 +34,7 @@
       </div>
 
       <!-- Links Column 1: Produk -->
-      <div>
+      <div class="md:justify-self-end">
         <div class="font-bold text-white text-xs uppercase tracking-wider mb-4">{c.products}</div>
         <ul class="space-y-2.5 text-xs sm:text-sm">
           {#each FOOTER_LINKS.products as link}
@@ -47,19 +47,6 @@
         </ul>
       </div>
 
-      <!-- Links Column 2: Legalitas -->
-      <div>
-        <div class="font-bold text-white text-xs uppercase tracking-wider mb-4">{c.legal}</div>
-        <ul class="space-y-2.5 text-xs sm:text-sm">
-          {#each FOOTER_LINKS.legal as link}
-            <li>
-              <a class="hover:text-white transition-colors" href={link.href}>
-                {link.label}
-              </a>
-            </li>
-          {/each}
-        </ul>
-      </div>
     </div>
 
     <!-- Copyright Bottom -->

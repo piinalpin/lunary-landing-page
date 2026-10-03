@@ -14,9 +14,4 @@ export const FOOTER_LINKS = {
     { label: 'FAQ', href: '#faq' },
     { label: 'Testimoni', href: '#testimoni' },
   ],
-  legal: [
-    { label: 'Kebijakan Privasi', href: '#faq' },
-    { label: 'Syarat & Ketentuan', href: '#faq' },
-    { label: 'Keamanan Data', href: '#faq' },
-  ],
 };
