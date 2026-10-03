@@ -35,6 +35,17 @@ jobs:
 
       - name: Build static site
         run: npm run build
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_API_TIMEOUT: ${{ vars.VITE_API_TIMEOUT }}
+          VITE_APP_HOST: ${{ vars.VITE_APP_HOST }}
+          VITE_APP_NAME: ${{ vars.VITE_APP_NAME }}
+          VITE_APP_LOGIN_URL: ${{ vars.VITE_APP_LOGIN_URL }}
+          VITE_LANDING_PAGE_SECRET: ${{ secrets.VITE_LANDING_PAGE_SECRET }}
+          VITE_REVERB_APP_KEY: ${{ secrets.VITE_REVERB_APP_KEY }}
+          VITE_REVERB_HOST: ${{ vars.VITE_REVERB_HOST }}
+          VITE_REVERB_PORT: ${{ vars.VITE_REVERB_PORT }}
+          VITE_REVERB_SCHEME: ${{ vars.VITE_REVERB_SCHEME }}
 
       - name: Preserve custom domain
         run: cp CNAME dist/CNAME
