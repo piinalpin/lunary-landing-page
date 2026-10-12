@@ -14,6 +14,9 @@ services:
         VITE_API_TIMEOUT: ${VITE_API_TIMEOUT:-10000}
         VITE_APP_NAME: ${VITE_APP_NAME:-Lunary}
         VITE_APP_LOGIN_URL: ${VITE_APP_LOGIN_URL:-http://localhost:8000/login}
+        VITE_SUPPORT_EMAIL: ${VITE_SUPPORT_EMAIL:-support@lunary.id}
+        VITE_SUPPORT_PHONE_NUMBER: ${VITE_SUPPORT_PHONE_NUMBER:-}
+        VITE_SUPPORT_ADDRESS: ${VITE_SUPPORT_ADDRESS:-}
         VITE_LANDING_PAGE_SECRET: ${VITE_LANDING_PAGE_SECRET:-lunary_landing_secret_2026_super_secure_key}
         VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY:-}
         VITE_REVERB_HOST: ${VITE_REVERB_HOST:-}
@@ -35,4 +38,3 @@ services:
       traefik.http.routers.lunary-app-landing-page.entrypoints: web-public
       traefik.http.routers.lunary-app-landing-page.service: lunary-app-landing-page-svc
       traefik.http.services.lunary-app-landing-page-svc.loadbalancer.server.port: 80
-

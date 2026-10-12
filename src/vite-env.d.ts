@@ -13,6 +13,9 @@ interface ImportMetaEnv {
   readonly VITE_API_TIMEOUT: string;
   readonly VITE_APP_NAME: string;
   readonly VITE_APP_LOGIN_URL: string;
+  readonly VITE_SUPPORT_EMAIL?: string;
+  readonly VITE_SUPPORT_PHONE_NUMBER?: string;
+  readonly VITE_SUPPORT_ADDRESS?: string;
   readonly VITE_LANDING_PAGE_SECRET?: string;
   readonly VITE_REVERB_APP_KEY?: string;
   readonly VITE_REVERB_HOST?: string;

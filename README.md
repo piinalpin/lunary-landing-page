@@ -135,6 +135,11 @@ VITE_APP_HOST=localhost
 VITE_APP_NAME=Lunary
 VITE_APP_LOGIN_URL=${VITE_API_BASE_HOST}/login
 
+# Support Contact Information
+VITE_SUPPORT_EMAIL=support@lunary.id
+VITE_SUPPORT_PHONE_NUMBER=+6281234567890
+VITE_SUPPORT_ADDRESS=Jakarta, Indonesia
+
 # Signature Kunci Rahasia Registrasi (Harus sama dengan backend LANDING_PAGE_SECRET)
 VITE_LANDING_PAGE_SECRET=5000e9c9478934cadd1b0ddc28cd470df6398e70e4237a8412b470580eb1118a
 ```

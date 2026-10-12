@@ -11,6 +11,22 @@
   } as const;
 
   const c = $derived(copy[locale]);
+
+  const supportPhoneHref = $derived(
+    env.supportPhoneNumber ? `tel:${env.supportPhoneNumber.replace(/[^+\d]/g, '')}` : '',
+  );
+  const supportPhoneLabel = $derived(formatSupportPhoneNumber(env.supportPhoneNumber));
+
+  function formatSupportPhoneNumber(phoneNumber: string): string {
+    const digits = phoneNumber.replace(/\D/g, '');
+
+    if (!digits.startsWith('62') || digits.length <= 2) return phoneNumber;
+
+    const localNumber = digits.slice(2);
+    const groups = [localNumber.slice(0, 3), localNumber.slice(3, 7), localNumber.slice(7)].filter(Boolean);
+
+    return `+62 ${groups.join('-')}`;
+  }
 </script>
 
 <footer class="border-t border-white/10 bg-brand-dark pt-16 pb-12 text-sm text-slate-400 relative z-10">
@@ -27,9 +43,19 @@
         </p>
         <div class="pt-1 space-y-1">
           <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{c.contact}</p>
-          <a class="text-sm text-slate-300 transition-colors hover:text-white" href="mailto:support@lunary.id">
-            support@lunary.id
-          </a>
+          {#if env.supportEmail}
+            <a class="block text-sm text-slate-300 transition-colors hover:text-white" href={`mailto:${env.supportEmail}`}>
+              {env.supportEmail}
+            </a>
+          {/if}
+          {#if supportPhoneHref}
+            <a class="block text-sm text-slate-300 transition-colors hover:text-white" href={supportPhoneHref}>
+              {supportPhoneLabel}
+            </a>
+          {/if}
+          {#if env.supportAddress}
+            <p class="text-sm text-slate-300">{env.supportAddress}</p>
+          {/if}
         </div>
       </div>
 
